@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import os
 import pickle
+from multiprocessing import Pool
 from regressors import train_regressors, apply_regressors, compute_performance
 
 SEED=123
@@ -95,8 +96,7 @@ def run(data_path, str_class, n_cpus):
 
     for data_range in range_high_TG:
         for alg in algs:
-            result1 = pool.apply_async()
-            print("all - {0} - {1}".format(alg, data_range))
+            print("High - {0} - {1}".format(alg, data_range))
             file_name = result_path+"result_"+str(data_range)+"_"+alg+".csv"
             results.append(pool.apply_async(evaluate_range, (X, y, alg, rcv, data_range, True, file_name)))
 
@@ -106,9 +106,9 @@ def run(data_path, str_class, n_cpus):
 
     for data_range in range_low_TG:
         for alg in algs:
-            print("all - {0} - {1}".format(alg, data_range))
+            print("Low - {0} - {1}".format(alg, data_range))
             file_name = result_path+"result_"+str(data_range)+"_"+alg+".csv"
-            evaluate_range(X, y, rcv, data_range, False, file_name)
+            # evaluate_range(X, y, rcv, data_range, False, file_name)
             results.append(pool.apply_async(evaluate_range, (X, y, alg, rcv, data_range, False, file_name)))
 
 
@@ -122,7 +122,7 @@ def run(data_path, str_class, n_cpus):
         file_names[0] = result_path+"result_all_"+alg+".csv"
         file_names[1] = result_path+"result_all_high_"+alg+".csv"
         file_names[2] = result_path+"result_all_low"+alg+".csv"
-        results.append(valuate, (X, y, alg, rcv, range_high_TG, range_low_TG, file_names))
+        results.append(pool.apply_async(evaluate, (X, y, alg, rcv, range_high_TG, range_low_TG, file_names)))
 
     pool.close()
     pool.join()
