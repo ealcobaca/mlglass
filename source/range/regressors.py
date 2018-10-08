@@ -12,6 +12,10 @@ import numpy as np
 def RRMSE(target, pred):
     num = np.sum((target - pred) ** 2)
     dem = np.sum((np.mean(target) - target) ** 2)
+    if(dem == 0):
+        print(target.shape)
+        print(target.pred)
+        print()
     return np.sqrt(num/dem)
 
 
@@ -53,11 +57,10 @@ def train_regressors(X_train, y_train, regressor, seed):
     elif regressor == "SVM":
         reg = SVR(
             kernel="rbf",
-            gamma="scale",
+            gamma="auto",
             C=1.0,
             epsilon=0.1,
-            max_iter=10000000,
-            random_state=seed).fit(X_train, y_train)
+            max_iter=10000000).fit(X_train, y_train)
     elif regressor == "MLP":
         reg = MLPRegressor(
             hidden_layer_sizes=50,

@@ -66,31 +66,21 @@ def evaluate_range(X, y, alg, rcv, value, grather):
 
 
 def run(data_path, str_class):
-    algs = ["DT", "RF", "XG", "SVM", "MLP"]
+    # algs = ["DT", "RF", "XG", "SVM", "MLP"]
+    algs = ["MLP", "SVM", "DT", "RF"]
     data = pd.read_csv(data_path)
-    rcv = RepeatedKFold(n_splits=10, n_repeats=100, random_state=SEED)
+    rcv = RepeatedKFold(n_splits=10, n_repeats=10, random_state=SEED)
 
     range_high_TG = np.arange(start=900, stop=1100+1, step=25)
     range_low_TG = np.arange(start=400, stop=650+1, step=25)
 
     X = data.drop([str_class], axis=1).values
-    y = data[str_class].values
+    yy = data[str_class].values
 
+    mean = np.mean(yy)
+    sd = np.std(yy, ddof=0)
+    y = (yy - np.mean(yy))/np.std(yy,ddof=0)
     # evaluate(X, y, rcv, range_high_TG, range_low_TG)
-    result_path = "../../result/result_all/"
-    if not os.path.exists(result_path):
-        os.makedirs(result_path)
-
-    for alg in algs:
-        print("all - {0}".format(alg))
-        results_perf, results_perf_high, results_perf_low = evaluate(
-            X, y, alg, rcv, range_high_TG, range_low_TG)
-        file_name = result_path+"result_all_"+alg+".csv"
-        pickle.dump(results_perf, open(file_name, "wb" ))
-        file_name = result_path+"result_all_high_"+alg+".csv"
-        pickle.dump(results_perf_high, open(file_name, "wb" ))
-        file_name = result_path+"result_all_low"+alg+".csv"
-        pickle.dump(results_perf_low, open(file_name, "wb" ))
 
     result_path = "../../result/result_high/"
     if not os.path.exists(result_path):
@@ -100,7 +90,7 @@ def run(data_path, str_class):
         for alg in algs:
             print("all - {0} - {1}".format(alg, data_range))
             file_name = result_path+"result_"+str(data_range)+"_"+alg+".csv"
-            result = evaluate_range(X, y, alg, rcv, data_range, True)
+            result = evaluate_range(X, y, alg, rcv, (mean-data_range)/sd, True)
             pickle.dump(result, open(file_name, "wb" ))
 
     result_path = "../../result/result_low/"
@@ -111,7 +101,21 @@ def run(data_path, str_class):
         for alg in algs:
             print("all - {0} - {1}".format(alg, data_range))
             file_name = result_path+"result_"+str(data_range)+"_"+alg+".csv"
-            result = evaluate_range(X, y, rcv, data_range, True)
+            result = evaluate_range(X, y, rcv, (mean-data_range)/sd, True)
             pickle.dump(result, open(file_name, "wb" ))
 
 
+    result_path = "../../result/result_all/"
+    if not os.path.exists(result_path):
+        os.makedirs(result_path)
+
+    for alg in algs:
+        print("all - {0}".format(alg))
+        results_perf, results_perf_high, results_perf_low = evaluate(
+            X, y, alg, rcv, (range_high_TG-mean)/sd, (mean-range_low_TG)/sd)
+        file_name = result_path+"result_all_"+alg+".csv"
+        pickle.dump(results_perf, open(file_name, "wb" ))
+        file_name = result_path+"result_all_high_"+alg+".csv"
+        pickle.dump(results_perf_high, open(file_name, "wb" ))
+        file_name = result_path+"result_all_low"+alg+".csv"
+        pickle.dump(results_perf_low, open(file_name, "wb" ))
