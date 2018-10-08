@@ -85,5 +85,5 @@ def compute_performance(y_pred, y_true):
               mean_squared_error(y_true, y_pred),
               r2_score(y_true, y_pred),
               RRMSE(y_true, y_pred),
-              RRMSE(y_true, y_pred)]
+              RMSE(y_true, y_pred)]
     return result
