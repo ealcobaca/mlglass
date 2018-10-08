@@ -69,7 +69,7 @@ def evaluate_range(X, y, alg, rcv, value, grather, file_name):
     pickle.dump(results_perf, open(file_name, "wb"))
 
 
-def run(data_path, str_class, n_cpus):
+def run_percentil(data_path, str_class, n_cpus):
     # algs = ["DT", "RF", "XG", "SVM", "MLP"]
     np.random.seed(SEED)
     algs = ["MLP", "SVM", "DT", "RF"]
@@ -86,7 +86,6 @@ def run(data_path, str_class, n_cpus):
     perceltil_sup = [(100-perceltil_inf[i]) for i in range(len(perceltil_inf))]
     range_high_TG = [np.percentile(y, perceltil_sup[i]) for i in range(len(perceltil_sup))]
     range_low_TG = [np.percentile(y, perceltil_inf[i]) for i in range(len(perceltil_inf))]
-    
 
     # mean = np.mean(yy)
     # sd = np.std(yy, ddof=0)
@@ -96,7 +95,7 @@ def run(data_path, str_class, n_cpus):
     pool = Pool(processes=n_cpus)
     results = []
 
-    result_path = "../../result/result_high/"
+    result_path = "../../result/result_high_percentil/"
     if not os.path.exists(result_path):
         os.makedirs(result_path)
 
@@ -106,7 +105,7 @@ def run(data_path, str_class, n_cpus):
             file_name = result_path+"result_"+str(data_range)+"_"+alg+".csv"
             results.append(pool.apply_async(evaluate_range, (X, y, alg, rcv, data_range, True, file_name)))
 
-    result_path = "../../result/result_low/"
+    result_path = "../../result/result_low_percentil/"
     if not os.path.exists(result_path):
         os.makedirs(result_path)
 
@@ -118,7 +117,7 @@ def run(data_path, str_class, n_cpus):
             results.append(pool.apply_async(evaluate_range, (X, y, alg, rcv, data_range, False, file_name)))
 
 
-    result_path = "../../result/result_all/"
+    result_path = "../../result/result_all_percentil/"
     if not os.path.exists(result_path):
         os.makedirs(result_path)
 

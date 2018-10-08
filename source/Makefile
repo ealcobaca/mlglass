@@ -6,3 +6,7 @@ run_range:
 	@printf "<<< Running .... >>>\n\n"
 	@cd range; python run.py --n_cpus=40
 	@printf "\n\n<<< End .... >>>\n"
+run_range_percentil:
+	@printf "<<< Running .... >>>\n\n"
+	@cd range; python run.py --n_cpus=8 -e 2
+	@printf "\n\n<<< End .... >>>\n"
