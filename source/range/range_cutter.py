@@ -72,7 +72,7 @@ def evaluate_range(X, y, alg, rcv, value, grather, file_name):
 def run(data_path, str_class, n_cpus):
     # algs = ["DT", "RF", "XG", "SVM", "MLP"]
     np.random.seed(SEED)
-    algs = ["DT", "MLP", "SVM", "DT", "RF"]
+    algs = ["DT", "MLP", "SVM", "RF"]
     data = pd.read_csv(data_path)
     rcv = RepeatedKFold(n_splits=10, n_repeats=5, random_state=SEED)
 
