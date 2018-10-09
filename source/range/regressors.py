@@ -14,7 +14,7 @@ def RRMSE(target, pred):
     dem = np.sum((np.mean(target) - target) ** 2)
     if(dem == 0):
         print(target.shape)
-        print(target.pred)
+        print(pred.shape)
         print()
     return np.sqrt(num/dem)
 
