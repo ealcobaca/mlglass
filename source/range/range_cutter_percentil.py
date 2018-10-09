@@ -46,9 +46,9 @@ def evaluate(X, y, alg, rcv, range_high_TG, range_low_TG, file_names):
             aux.append(result_perf)
         results_perf_low.append(aux)
 
-    pickle.dump(results_perf, open(file_name[0], "wb" ))
-    pickle.dump(results_perf_high, open(file_name[1], "wb" ))
-    pickle.dump(results_perf_low, open(file_name[2], "wb" ))
+    pickle.dump(results_perf, open(file_names[0], "wb" ))
+    pickle.dump(results_perf_high, open(file_names[1], "wb" ))
+    pickle.dump(results_perf_low, open(file_names[2], "wb" ))
     return
 
 def evaluate_range(X, y, alg, rcv, value, grather, file_name):
