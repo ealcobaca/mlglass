@@ -37,4 +37,7 @@ def run():
 
     aggr("../../result/result_low/", "../../result/aggr/result_low.csv")
     aggr("../../result/result_high/", "../../result/aggr/result_high.csv")
+    aggr("../../result/result_low_percentil/", "../../result/aggr/result_low_percentil.csv")
+    aggr("../../result/result_high_percentil/", "../../result/aggr/result_high_percentil.csv")
+    aggr("../../result/result_all/result_all_", "../../result/aggr/result_low.csv")
 
