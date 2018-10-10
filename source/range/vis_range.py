@@ -12,7 +12,7 @@ def aggr(read_path, save_path):
 
     data=[]
     for f, path in zip(files, path_files):
-        exp_range = float(f.split('_')[1])
+        exp_range = f.split('_')[1]
         exp_alg = f.split('_')[2].split('.')[0]
         result = pickle.load( open(path, "rb" ))
         [(r.append(exp_range),r.append(exp_alg), data.append(r)) for r in result]
@@ -78,7 +78,6 @@ def aggr_all(read_path, save_path, data_path, str_class):
                                           "range",
                                           "alg"])
     if save_path != None:
-        print(save_path)
         return df.to_csv(save_path)
 
     return df
