@@ -118,7 +118,112 @@ def plot_bar(alg, save_path, measure, percentil=False):
 
     data = [trace0, trace1]
     layout = go.Layout(
-	yaxis=dict(title='RMSE', zeroline=False),
+	yaxis=dict(title=measure, zeroline=False),
+	xaxis=dict(title='Tg', zeroline=False),
+	title=title,
+	boxmode='group')
+    fig = go.Figure(data=data, layout=layout)
+    plotly.offline.plot(fig, filename=save_path)
+
+def plot_bar_algs(save_path, measure, percentil=False):
+    title = None
+    if percentil == True:
+        title = "All algorithms: Range (percentile)"
+        save_path = save_path+"_"+measure+"_all_algorithm_range_percentile.html"
+        df_high = pd.read_csv('../../result/aggr/result_high_percentil.csv')
+        df_low = pd.read_csv('../../result/aggr/result_low_percentil.csv')
+    else:
+        title = "All algorithms: Range"
+        save_path = save_path+"_"+measure+"_all_algorithm_range.html"
+        df_high = pd.read_csv('../../result/aggr/result_high.csv')
+        df_low = pd.read_csv('../../result/aggr/result_low.csv')
+
+    colors = ["#33a02c", "#fb9a99", "#a6cee3", "#7570b3"]
+    algs = ["DT", "MLP", "SVM", "RF"]
+    data = []
+    for alg, col in zip(algs, colors):
+        df_l = df_low[df_low["alg"] == alg]
+        df_h = df_high[df_high["alg"] == alg]
+        df = pd.concat([df_l, df_h])
+
+        trace = go.Box(
+            y=df[measure],
+            x=df['range'],
+            name=alg,
+            marker=dict(color=col))
+        data.append(trace)
+
+    layout = go.Layout(
+	yaxis=dict(title=measure, zeroline=False),
+	xaxis=dict(title='Tg', zeroline=False),
+	title=title,
+	boxmode='group')
+    fig = go.Figure(data=data, layout=layout)
+    plotly.offline.plot(fig, filename=save_path)
+
+def plot_bar_all(save_path, measure, percentil=False):
+    title = None
+    if percentil == True:
+        title = "All algorithms: all data (percentile)"
+        save_path = save_path+measure+"_all_algorithm_percentile.html"
+        df_all = pd.read_csv('../../result/aggr/result_all_percentil.csv')
+    else:
+        title = "All algorithms: all data"
+        save_path = save_path+measure+"_all_algorithm.html"
+        df_all = pd.read_csv('../../result/aggr/result_all.csv')
+
+    colors = ["#33a02c", "#fb9a99", "#a6cee3", "#7570b3"]
+    algs = ["DT", "MLP", "SVM", "RF"]
+    data = []
+    for alg, col in zip(algs, colors):
+        df = df_all[df_all["alg"] == alg]
+        df = df[df["range"] == "all"]
+        trace = go.Box(
+            y=df[measure],
+            x=df['alg'],
+            name=alg,
+            marker=dict(color=col))
+        data.append(trace)
+
+    layout = go.Layout(
+	yaxis=dict(title=measure, zeroline=False),
+	xaxis=dict(title='Tg', zeroline=False),
+	title=title,
+	boxmode='group')
+    fig = go.Figure(data=data, layout=layout)
+    plotly.offline.plot(fig, filename=save_path)
+
+
+def plot_bar_algs(save_path, measure, percentil=False):
+    title = None
+    if percentil == True:
+        title = "All algorithms: Range (percentile)"
+        save_path = save_path+measure+"_all_algorithm_range_percentile.html"
+        df_high = pd.read_csv('../../result/aggr/result_high_percentil.csv')
+        df_low = pd.read_csv('../../result/aggr/result_low_percentil.csv')
+    else:
+        title = "All algorithms: Range"
+        save_path = save_path+measure+"_all_algorithm_range.html"
+        df_high = pd.read_csv('../../result/aggr/result_high.csv')
+        df_low = pd.read_csv('../../result/aggr/result_low.csv')
+
+    colors = ["#33a02c", "#fb9a99", "#a6cee3", "#7570b3"]
+    algs = ["DT", "MLP", "SVM", "RF"]
+    data = []
+    for alg, col in zip(algs, colors):
+        df_l = df_low[df_low["alg"] == alg]
+        df_h = df_high[df_high["alg"] == alg]
+        df = pd.concat([df_l, df_h])
+
+        trace = go.Box(
+            y=df[measure],
+            x=df['range'],
+            name=alg,
+            marker=dict(color=col))
+        data.append(trace)
+
+    layout = go.Layout(
+	yaxis=dict(title=measure, zeroline=False),
 	xaxis=dict(title='Tg', zeroline=False),
 	title=title,
 	boxmode='group')
@@ -144,11 +249,16 @@ def run():
         os.makedirs(save_path)
 
     algs = ["DT", "MLP", "SVM", "RF"]
-    measure=["mean_absolute_error", "mean_absolute_error", "r2_score", "RRMSE","RMSE"]
+    # measure=["mean_absolute_error", "mean_absolute_error", "r2_score", "RRMSE","RMSE"]
+    measure=["RMSE"]
 
     for alg in algs:
         for me in measure:
             plot_bar(alg, save_path, me, True)
             plot_bar(alg, save_path, me, False)
+    plot_bar_algs(save_path, measure[0], percentil=False)
+    plot_bar_algs(save_path, measure[0], percentil=True)
+
+    plot_bar_all(save_path, measure[0], percentil=False)
 
 run()
