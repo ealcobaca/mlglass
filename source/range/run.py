@@ -1,5 +1,6 @@
 from range_cutter import run
 from range_cutter_percentil import run_percentil
+from range_eval import run_eval
 import sys, getopt
 
 DATA_PATH = "../../data/clean/"
@@ -28,6 +29,9 @@ def main(argv):
     elif aux == 2:
         print("Experiment with percentil")
         run_percentil("../../data/clean/oxides_Tg_train.csv", "Tg", n_cores)
+    elif aux == 3:
+        print("Experiment oracle")
+        run_eval("../../data/clean/oxides_Tg_train.csv", "Tg", n_cores)
     else:
         sys.exit()
 
