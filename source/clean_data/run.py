@@ -13,7 +13,7 @@ def main():
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
-    mult_target_split(data, targets, save_path, test_size=0.2, seed=123)
+    mult_target_split(data, targets, save_path, test_size=0.2, amount=6, seed=123)
 
 if __name__ == "__main__":
     main()
