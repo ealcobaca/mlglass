@@ -11,4 +11,4 @@ cd /home/alcobaca/predicting_high_low_TG/source/range
 
 printf "$(pwd)\n"
 
-python run.py --n_cpus=56 -e 2
+python run.py --n_cpus=56 -e 3

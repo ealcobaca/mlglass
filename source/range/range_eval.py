@@ -5,7 +5,7 @@ import os
 import pickle
 from multiprocessing import Pool, Manager
 from regressors import train_regressors, apply_regressors, compute_performance
-import line_profiler
+# import line_profiler
 
 SEED=123
 
@@ -36,11 +36,9 @@ def apply_oracle(reg_high, reg_middle, reg_low, low, high, X_test, y_test):
             y_pred[i] = reg_middle.predict([X_test[i]])
     return np.array(y_pred)
 
-@profile
+# @profile
 def evaluate(X, y, alg, rcv, ranges, file_path, d, folds=10):
     np.random.seed(SEED)
-    print(alg)
-    print(ranges)
     alg_low, alg_middle, alg_high = alg
     low, high = ranges
     results_perf = []
@@ -93,8 +91,8 @@ def evaluate(X, y, alg, rcv, ranges, file_path, d, folds=10):
 
 def run_eval(data_path, str_class, n_cpus):
     np.random.seed(SEED)
-    # algs = ["DT", "MLP", "RF"]
-    algs = ["MLP", "RF"]
+    algs = ["DT", "MLP", "RF"]
+    # algs = ["MLP", "RF"]
     data = pd.read_csv(data_path)
     folds=10
     rep=1
@@ -111,9 +109,6 @@ def run_eval(data_path, str_class, n_cpus):
 
     range_high_TG = np.round(range_high_TG, 2)
     range_low_TG = np.round(range_low_TG,2)
-
-    print(range_low_TG)
-    print(range_high_TG)
 
     result_path = "../../result/result_oracle/"
     if not os.path.exists(result_path):
