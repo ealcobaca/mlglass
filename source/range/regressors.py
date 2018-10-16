@@ -19,6 +19,10 @@ def RRMSE(target, pred):
     return np.sqrt(num/dem)
 
 
+def MARE(target, pred, alpha=1e-6):
+    return np.mean((np.abs(target - pred)+alpha)/(target+alpha))
+
+
 def MSE(target, pred):
     N = len(target)
     return np.sum((target-pred)**2)/N
@@ -28,15 +32,19 @@ def RMSE(target, pred):
     return np.sqrt(MSE(target, pred))
 
 
+def R2(target, pred):
+    return np.corrcoef(target,pred)[0,1] ** 2
+
+
 def train_regressors(X_train, y_train, regressor, seed):
     reg = None
     if regressor == "RF":
         reg = RandomForestRegressor(
             n_estimators=100,
-            criterion="mse",
-            max_depth=None,
-            min_samples_split=0.01,
-            min_samples_leaf=0.005,
+            # criterion="mse",
+            # max_depth=None,
+            # min_samples_split=0.01,
+            # min_samples_leaf=0.005,
             n_jobs=10,
             random_state=seed).fit(X_train,y_train)
     elif regressor == "DT":
@@ -63,10 +71,10 @@ def train_regressors(X_train, y_train, regressor, seed):
             max_iter=10000000).fit(X_train, y_train)
     elif regressor == "MLP":
         reg = MLPRegressor(
-            hidden_layer_sizes=50,
-            activation="relu",
-            solver="adam",
-            alpha=0.0001,
+            # hidden_layer_sizes=100,
+            # activation="relu",
+            # solver="adam",
+            # alpha=0.0001,
             max_iter=800,
             early_stopping=True,
             random_state=seed).fit(X_train, y_train)
@@ -85,5 +93,7 @@ def compute_performance(y_pred, y_true):
               mean_squared_error(y_true, y_pred),
               r2_score(y_true, y_pred),
               RRMSE(y_true, y_pred),
-              RMSE(y_true, y_pred)]
+              RMSE(y_true, y_pred),
+              MARE(y_true, y_pred),
+              R2(y_true, y_pred)]
     return result
