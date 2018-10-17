@@ -75,7 +75,7 @@ def train_regressors(X_train, y_train, regressor, seed):
             # activation="relu",
             # solver="adam",
             # alpha=0.0001,
-            max_iter=800,
+            max_iter=500,
             early_stopping=True,
             random_state=seed).fit(X_train, y_train)
     else:
