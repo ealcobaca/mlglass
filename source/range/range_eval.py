@@ -45,44 +45,44 @@ def evaluate(X, y, alg, rcv, ranges, file_path, d, folds=10):
     file_name = file_path+str(alg_low)+"_"+str(alg_middle)+"_"+str(alg_high)+"_"+str(low)+"_"+str(high)+"_.csv"
 
     # 10-fold CV
-    # k=0
-    # for (train_index, test_index), seed in zip(rcv.split(X), np.random.randint(1,10000, folds)):
-    #     X_train, X_test = X[train_index], X[test_index]
-    #     y_train, y_test = y[train_index], y[test_index]
-    #
-    #     X_low_train, y_low_train, X_middle_train, y_middle_train, X_high_train, y_high_train = fill_data(X_train, y_train, low, high)
-    #
-    #     key = "{0}_{1}_{2}".format(alg_low, low, k)
-    #     reg_low = get_train_regressors(X_low_train, y_low_train, alg_low, key, d, seed)
-    #     key = "{0}_{1}-{2}_{3}".format(alg_middle, low, high, k)
-    #     reg_middle = get_train_regressors(X_middle_train, y_middle_train, alg_middle, key, d, seed)
-    #     key = "{0}_{1}_{2}".format(alg_high, high, k)
-    #     reg_high = get_train_regressors(X_high_train, y_high_train, alg_high, key, d, seed)
-    #
-    #     # Oracle
-    #     X_low_test, y_low_test, X_middle_test, y_middle_test, X_high_test, y_high_test = fill_data(X_test, y_test, low, high)
-    #
-    #     preds = apply_oracle(reg_high, reg_middle, reg_low, low, high, X_test, y_test)
-    #     result_oracle = compute_performance(y_test, preds)
-    #     result_oracle.append("oracle-all")
-    #     results_perf.append(result_oracle)
-    #
-    #     preds = apply_regressors(reg_low, X_low_test)
-    #     result_low = compute_performance(y_low_test, preds)
-    #     result_low.append("oracle-low")
-    #     results_perf.append(result_low)
-    #
-    #     preds = apply_regressors(reg_high, X_high_test)
-    #     result_high = compute_performance(y_high_test, preds)
-    #     result_high.append("oracle-high")
-    #     results_perf.append(result_high)
-    #
-    #     preds = apply_regressors(reg_middle, X_middle_test)
-    #     result_middle = compute_performance(y_middle_test, preds)
-    #     result_middle.append("oracle-middle")
-    #     results_perf.append(result_middle)
-    #     k += 1
-    #
+    k=0
+    for (train_index, test_index), seed in zip(rcv.split(X), np.random.randint(1,10000, folds)):
+        X_train, X_test = X[train_index], X[test_index]
+        y_train, y_test = y[train_index], y[test_index]
+    
+        X_low_train, y_low_train, X_middle_train, y_middle_train, X_high_train, y_high_train = fill_data(X_train, y_train, low, high)
+    
+        key = "{0}_{1}_{2}".format(alg_low, low, k)
+        reg_low = get_train_regressors(X_low_train, y_low_train, alg_low, key, d, seed)
+        key = "{0}_{1}-{2}_{3}".format(alg_middle, low, high, k)
+        reg_middle = get_train_regressors(X_middle_train, y_middle_train, alg_middle, key, d, seed)
+        key = "{0}_{1}_{2}".format(alg_high, high, k)
+        reg_high = get_train_regressors(X_high_train, y_high_train, alg_high, key, d, seed)
+    
+        # Oracle
+        X_low_test, y_low_test, X_middle_test, y_middle_test, X_high_test, y_high_test = fill_data(X_test, y_test, low, high)
+    
+        preds = apply_oracle(reg_high, reg_middle, reg_low, low, high, X_test, y_test)
+        result_oracle = compute_performance(y_test, preds)
+        result_oracle.append("oracle-all")
+        results_perf.append(result_oracle)
+    
+        preds = apply_regressors(reg_low, X_low_test)
+        result_low = compute_performance(y_low_test, preds)
+        result_low.append("oracle-low")
+        results_perf.append(result_low)
+    
+        preds = apply_regressors(reg_high, X_high_test)
+        result_high = compute_performance(y_high_test, preds)
+        result_high.append("oracle-high")
+        results_perf.append(result_high)
+    
+        preds = apply_regressors(reg_middle, X_middle_test)
+        result_middle = compute_performance(y_middle_test, preds)
+        result_middle.append("oracle-middle")
+        results_perf.append(result_middle)
+        k += 1
+    
     df = pd.DataFrame(data=results_perf,
                       columns=["mean_absolute_error", "mean_squared_error",
                                "r2_score", "RRMSE", "RMSE", "MARE", "R2", "type"])
