@@ -45,7 +45,7 @@ def train_regressors(X_train, y_train, regressor, seed):
             # max_depth=None,
             # min_samples_split=0.01,
             # min_samples_leaf=0.005,
-            n_jobs=10,
+            # n_jobs=10,
             random_state=seed).fit(X_train,y_train)
     elif regressor == "DT":
         reg = DecisionTreeRegressor(
