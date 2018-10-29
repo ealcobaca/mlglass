@@ -88,7 +88,7 @@ def apply_regressors(reg, X_test):
     return reg.predict(X_test)
 
 
-def compute_performance(y_pred, y_true):
+def compute_performance(y_true, y_pred):
     result = [mean_absolute_error(y_true, y_pred),
               mean_squared_error(y_true, y_pred),
               r2_score(y_true, y_pred),
