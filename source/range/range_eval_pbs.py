@@ -32,7 +32,7 @@ def fill_data(X, y, range_type, range_size):
 
 def save_train_regressors(X, y, alg, file_name, seed):
     alg = train_regressors(X, y, alg, seed)
-    pickle.dump(obj=alg, file=open(file_name, "wb"), protocol=4)
+    # pickle.dump(obj=alg, file=open(file_name, "wb"), protocol=4)
     return alg
 
 
