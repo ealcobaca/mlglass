@@ -64,12 +64,16 @@ def run(data_path, str_class):
 
     return dic_oracle
 
-dic = run("../../data/clean/oxides_Tg_train.csv", "Tg")
-dic_measure = {"MAE":0, "MSE":1, "R2_S":2, "RRMSE":3, "RMSE":4, "MARE":5, "R2":6}
+def summary():
+    dic = run("../../data/clean/oxides_Tg_train.csv", "Tg")
+    dic_measure = {"MAE":0, "MSE":1, "R2_S":2, "RRMSE":3, "RMSE":4, "MARE":5, "R2":6}
 
-for measure in dic_measure.keys():
-    dic_ord = order(dic, by=measure)
-    print("------ "+measure+" ------")
-    for i in range(0,3):
-        print("{0} -- {1}".format(dic_ord[i][0], round(dic_ord[i][1][0][dic_measure[measure]],4)))
-    print("-------------------------")
+    for measure in dic_measure.keys():
+        dic_ord = order(dic, by=measure)
+        print("------ "+measure+" ------")
+        for i in range(0,3):
+            print("{0} -- {1} +/- {2}".format(
+                dic_ord[i][0],
+                round(dic_ord[i][1][0][dic_measure[measure]],4),
+                round(dic_ord[i][1][1][dic_measure[measure]],4)))
+        print("-------------------------")
