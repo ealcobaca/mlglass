@@ -2,6 +2,7 @@ from range_cutter import run
 from range_cutter_percentil import run_percentil
 from range_eval import run_eval
 from range_eval_pbs import experiment_conf_id, run_eval_pbs
+from baselines import create_baselines
 import sys, getopt, os
 
 DATA_PATH = "../../data/clean/"
@@ -45,7 +46,20 @@ def main(argv):
             os.makedirs(alg_path)
         file = open("{0}{1}.log".format(alg_path,id_exp), "w")
         file.close()
+    elif aux == 5:
+        print("Experiment baselines")
+        tr_data_path = "../../data/clean/oxides_Tg_train.csv"
+        ts_data_path = "../../data/clean/oxides_Tg_test.csv"
+        output_path = "../../result/baselines/"
 
+        if not os.path.exists(output_path):
+            os.makedirs("{}log".format(output_path))
+            os.makedirs("{}models".format(output_path))
+        create_baselines(
+            tr_data_path=tr_data_path,
+            ts_data_path=ts_data_path,
+            output_path=output_path
+        )
     else:
         sys.exit()
 
