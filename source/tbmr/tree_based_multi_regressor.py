@@ -156,6 +156,10 @@ def run_default(data_train_path, data_test_path, str_class, result_path, f_name)
         file_name = result_path+"{0}_{1}_leaf-start_.list".format(c,f_name)
         pickle.dump(result, open(file_name, "wb" ))
 
+        result = regr.predict_leaf(X_test, y_test, 1)
+        file_name = result_path+"{0}_{1}_leaf-middle_.list".format(c,f_name)
+        pickle.dump(result, open(file_name, "wb" ))
+
         result = regr.predict_leaf(X_test, y_test, 2)
         file_name = result_path+"{0}_{1}_leaf-end_.list".format(c,f_name)
         pickle.dump(result, open(file_name, "wb" ))
