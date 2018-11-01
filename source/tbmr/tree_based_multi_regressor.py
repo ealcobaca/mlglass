@@ -53,7 +53,6 @@ class TBMR:
             data.append([X_cut, y_cut])
 
         # root model
-        # y_disc = [str(i) for i in y_disc]
         self.classif_root = RandomForestClassifier(n_estimators=100, random_state=self.next_seed())
         self.classif_root.fit(X, y_disc)
 
@@ -64,20 +63,20 @@ class TBMR:
             regr.fit(d[0], d[1])
             self.regrs_leaf.append(regr)
 
+
     def predict(self, X):
         pred_root = self.classif_root.predict(X)
         pred_leaf = []
-        pred_root = [int(i) for i in pred_root]
+        pred_root = pred_root.astype(int)
 
-        pred_leaf = [self.regrs_leaf[i-1].predict([x])[0] for i, x in zip(pred_root, X)]
-        return np.array(pred_leaf)
+        # Speeding up prediction computation
+        pred_leaf = np.zeros((X.shape[0]))
+        for cat_val in np.unique(pred_root):
+            sel_samples = pred_root == cat_val
+            pred_leaf[sel_samples] = \
+                self.regrs_leaf[cat_val-1].predict(X[sel_samples, :])
+        return pred_leaf
 
-        # # Speeding up prediction computation
-        # pred_leaf = np.zeros((X.shape[0]))
-        # for cat_val in np.unique(pred_root):
-        #     sel_samples = pred_root == cat_val
-        #     pred_leaf[sel_samples] = \
-        #         self.regrs_leaf[cat_val-1].predict(X[sel_samples, :])
 
     def to_class(self, y):
         y_disc = np.zeros_like(y)
@@ -97,20 +96,26 @@ class TBMR:
             previous = i
         return y_disc
 
+
     def predict_all_leaf(self, X, y):
-        pred_leaf = []
         pred_root = self.to_class(y)
-        pred_root = [int(i) for i in pred_root]
-        pred_leaf = [self.regrs_leaf[i-1].predict([x])[0] for i,x in zip(pred_root,X)]
+        pred_root = pred_root.astype(int)
+
+        pred_leaf = np.zeros((X.shape[0]))
+        for cat_val in np.unique(pred_root):
+            sel_samples = pred_root == cat_val
+            pred_leaf[sel_samples] = \
+                self.regrs_leaf[cat_val-1].predict(X[sel_samples, :])
+
         return [y, pred_leaf]
 
 
     def predict_root(self, X, y):
         pred_root = self.classif_root.predict(X)
-        # pred_root = [int(i) for i in pred_root]
         truth = self.to_class(y)
         truth = [int(i) for i in truth]
-        return [truth, pred_root]
+
+        return [np.array(truth), pred_root]
 
 
     def predict_leaf(self, X, y, index):
@@ -120,6 +125,7 @@ class TBMR:
         x = X[pred_root == (index+1)]
         y = y[pred_root == (index+1)]
         pred_leaf = self.regrs_leaf[index].predict(x)
+
         return [y, pred_leaf]
 
 
@@ -146,6 +152,7 @@ def run_default(data_train_path, data_test_path, str_class, result_path, f_name)
     mean = (round(np.mean(start),2), round(np.mean(end),2))
     conf = {"mode": mode, "mean":mean}
 
+    r = []
     for c in conf.keys():
         regr = TBMR(alg=("RF"), range_cut=conf[c], seed=None)
         regr.fit(X_train, y_train)
@@ -154,34 +161,41 @@ def run_default(data_train_path, data_test_path, str_class, result_path, f_name)
         result = [y_test, pred]
         file_name = result_path+"{0}_{1}_.list".format(c,f_name)
         pickle.dump(result, open(file_name, "wb" ))
+        r.append(result)
 
         result = regr.predict_all_leaf(X_test, y_test)
         file_name = result_path+"{0}_{1}_all_leaf.list".format(c,f_name)
         pickle.dump(result, open(file_name, "wb" ))
+        r.append(result)
 
         result = regr.predict_leaf(X_test, y_test, 0)
         file_name = result_path+"{0}_{1}_leaf-start_.list".format(c,f_name)
         pickle.dump(result, open(file_name, "wb" ))
+        r.append(result)
 
-        result = regr.predict_leaf(X_test, y_test, 1)
-        file_name = result_path+"{0}_{1}_leaf-middle_.list".format(c,f_name)
-        pickle.dump(result, open(file_name, "wb" ))
+        if f_name == 'test':
+            result = regr.predict_leaf(X_test, y_test, 1)
+            file_name = result_path+"{0}_{1}_leaf-middle_.list".format(c,f_name)
+            pickle.dump(result, open(file_name, "wb" ))
+            r.append(result)
 
         result = regr.predict_leaf(X_test, y_test, 2)
         file_name = result_path+"{0}_{1}_leaf-end_.list".format(c,f_name)
         pickle.dump(result, open(file_name, "wb" ))
+        r.append(result)
 
         result = regr.predict_root(X_test, y_test)
         file_name = result_path+"{0}_{1}_root_.list".format(c,f_name)
         pickle.dump(result, open(file_name, "wb" ))
+        r.append(result)
+    return r
 
-
-run_default(
+r1=run_default(
     "../data/clean/oxides_Tg_train.csv",
     "../data/clean/oxides_Tg_test.csv",
     "Tg",
     "../result/result_oracle/default-model/", "test")
-run_default(
+r2=run_default(
     "../data/clean/oxides_Tg_train.csv",
     "../data/clean/oxides_Tg_test_rem.csv",
     "Tg",
