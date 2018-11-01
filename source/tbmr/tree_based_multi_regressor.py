@@ -10,7 +10,7 @@ import pickle
 
 class TBMR:
     def __init__(self, alg=("RF"), range_cut=(), seed=None):
-        if seed != None:
+        if seed is not None:
             self.seed = seed
             np.random.seed(self.seed)
 
@@ -36,13 +36,13 @@ class TBMR:
             print("Error")
             return None, None
 
-
     def fit(self, X, y):
         data = []
         aux = len(self.range_cut)
         y_disc = np.zeros_like(y)
 
-        for i in range(0,len(self.range_cut)+1):
+        previous = -1
+        for i in range(0, len(self.range_cut)+1):
             if(i == 0):
                 X_cut, y_cut, y_disc = self.fill_data(X, y, "beggining", self.range_cut[i], y_disc, i+1)
             elif(i == aux):
@@ -64,20 +64,27 @@ class TBMR:
             regr.fit(d[0], d[1])
             self.regrs_leaf.append(regr)
 
-
     def predict(self, X):
         pred_root = self.classif_root.predict(X)
         pred_leaf = []
         pred_root = [int(i) for i in pred_root]
 
-        pred_leaf = [self.regrs_leaf[i-1].predict([x])[0] for i,x in zip(pred_root,X)]
+        pred_leaf = [self.regrs_leaf[i-1].predict([x])[0] for i, x in zip(pred_root, X)]
         return np.array(pred_leaf)
 
+        # # Speeding up prediction computation
+        # pred_leaf = np.zeros((X.shape[0]))
+        # for cat_val in np.unique(pred_root):
+        #     sel_samples = pred_root == cat_val
+        #     pred_leaf[sel_samples] = \
+        #         self.regrs_leaf[cat_val-1].predict(X[sel_samples, :])
 
     def to_class(self, y):
         y_disc = np.zeros_like(y)
         len_range = len(self.range_cut)
-        for i in range(0,len(self.range_cut)+1):
+
+        previous = -1
+        for i in range(0, len(self.range_cut)+1):
             if(i == 0):
                 y_disc[y < self.range_cut[i]] = int(i+1)
             elif(i == len_range):
