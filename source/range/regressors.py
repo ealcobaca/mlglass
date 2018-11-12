@@ -20,6 +20,9 @@ def RRMSE(target, pred):
 
 
 def MARE(target, pred, alpha=1e-6):
+    # print(target.shape)
+    # print(pred.shape)
+    # return 1
     return np.mean((np.abs(target - pred)+alpha)/(target+alpha))
 
 
