@@ -28,10 +28,16 @@ def lineplot_local_evaluation(
         y_pred = np.array(y_pred)
 
         # Create a trace
-        trace1 = go.Scatter(x=y_true, y=y_pred,mode = 'markers')
-        trace2 = go.Scatter(x=[0, 2000], y=[0,2000], line={'color':'#000000'})
+        trace1 = go.Scatter(x=y_true, y=y_pred,mode = 'markers', showlegend=False,
+                                marker=dict(
+                                    size=8,
+                                    color = np.abs(y_true-y_pred), #set color equal to a variable
+                                    colorscale='Viridis',
+                                    showscale=True))
+        trace2 = go.Scatter(x=[0, 2000], y=[0,2000], line={'color':'#000000'}, showlegend=False)
         data = [trace1,trace2]
-        layout = go.Layout(title="Difference between predicted and truth by range")
+        layout = go.Layout(title="Difference between predicted and truth by range",
+                           yaxis=dict(title="TG predicted"), xaxis=dict(title="TG True"))
         fig = go.Figure(data=data, layout=layout)
         plot(fig, filename='lineplot-{0}.html'.format(name), auto_open=True)
 
@@ -92,27 +98,27 @@ def boxplot_local_evaluation(metric="RMSE",
     fig = go.Figure(data=data, layout=layout)
     plot(fig, filename='boxplot.html', auto_open=True)
 
-    #
-    # trace0 = go.Bar(x=data2[0][0], y=data2[0][1], name='mode',
-    #                 error_y=dict( type='data', array=data2[0][2], visible=True))
-    # trace1 = go.Bar(x=data2[1][0], y=data2[1][1], name='baseline-RF',
-    #                 error_y=dict( type='data', array=data2[1][2], visible=True))
-    # data = [trace0, trace1]
-    # layout = go.Layout(title="Absolute difference between predicted and truth by range",
-    #     barmode='group', yaxis=dict(title="Abs Diff"))
-    # fig = go.Figure(data=data, layout=layout)
-    # plot(fig, filename = 'barplot-mare.html', auto_open=True)
-    #
-    # trace0 = go.Bar(x=data3[0][0], y=data3[0][1], name='mode',
-    #                 error_y=dict( type='data', array=data3[0][2], visible=True))
-    # trace1 = go.Bar(x=data3[1][0], y=data3[1][1], name='baseline-RF',
-    #                 error_y=dict( type='data', array=data3[1][2], visible=True))
-    # data = [trace0, trace1]
-    # layout = go.Layout(title="MARE measure by range",
-    #     barmode='group', yaxis=dict(title="MARE"))
-    # fig = go.Figure(data=data, layout=layout)
-    # plot(fig, filename = 'barplot-diff.html', auto_open=True)
-    #
+
+    trace0 = go.Bar(x=data2[0][0], y=data2[0][1], name='mode',
+                    error_y=dict( type='data', array=data2[0][2], visible=True))
+    trace1 = go.Bar(x=data2[1][0], y=data2[1][1], name='baseline-RF',
+                    error_y=dict( type='data', array=data2[1][2], visible=True))
+    data = [trace0, trace1]
+    layout = go.Layout(title="Absolute difference between predicted and truth by range",
+        barmode='group', yaxis=dict(title="Abs Diff"))
+    fig = go.Figure(data=data, layout=layout)
+    plot(fig, filename = 'barplot-mare.html', auto_open=True)
+
+    trace0 = go.Bar(x=data3[0][0], y=data3[0][1], name='mode',
+                    error_y=dict( type='data', array=data3[0][2], visible=True))
+    trace1 = go.Bar(x=data3[1][0], y=data3[1][1], name='baseline-RF',
+                    error_y=dict( type='data', array=data3[1][2], visible=True))
+    data = [trace0, trace1]
+    layout = go.Layout(title="MARE measure by range",
+        barmode='group', yaxis=dict(title="MARE"))
+    fig = go.Figure(data=data, layout=layout)
+    plot(fig, filename = 'barplot-diff.html', auto_open=True)
+
 
 def local_evaluation(metric="RMSE"):
     paths = [
@@ -318,11 +324,11 @@ def global_evaluation():
     df.to_csv("../result/performance/global_test_perf.csv", index=False)
 
 
-# global_evaluation()
-# internal_regressors_evaluation()
-# internal_classifier_evaluation()
-# rem_evaluation()
-# local_evaluation(metric="RMSE")
-# local_evaluation(metric="MARE")
+global_evaluation()
+internal_regressors_evaluation()
+internal_classifier_evaluation()
+rem_evaluation()
+local_evaluation(metric="RMSE")
+local_evaluation(metric="MARE")
 boxplot_local_evaluation()
 lineplot_local_evaluation()
