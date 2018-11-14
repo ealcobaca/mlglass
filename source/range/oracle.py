@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import pickle
-from .regressors import compute_performance
+from range.regressors import compute_performance
 
 
 path_result = "../result/result_oracle/result_list/"

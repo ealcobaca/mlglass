@@ -11,7 +11,30 @@ import plotly.plotly as py
 import plotly.graph_objs as go
 from plotly.offline import plot
 
+
 path_result = "../result/result_oracle/default-model/"
+
+def lineplot_local_evaluation(
+    paths=["../result/result_oracle/default-model/mode_test_.list", "../result/baselines/log/predictions_raw_RF.list"]):
+
+    for path, name in zip(paths, ["mode","RF"]):
+        print(path)
+        if str.find(path, 'baselines') >= 0:
+            _, y_true, y_pred = pickle.load(open(path, 'rb'))
+        else:
+            y_true, y_pred = pickle.load(open(path, 'rb'))
+
+        y_true = np.array(y_true)
+        y_pred = np.array(y_pred)
+
+        # Create a trace
+        trace1 = go.Scatter(x=y_true, y=y_pred,mode = 'markers')
+        trace2 = go.Scatter(x=[0, 2000], y=[0,2000], line={'color':'#000000'})
+        data = [trace1,trace2]
+        layout = go.Layout(title="Difference between predicted and truth by range")
+        fig = go.Figure(data=data, layout=layout)
+        plot(fig, filename='lineplot-{0}.html'.format(name), auto_open=True)
+
 
 def boxplot_local_evaluation(metric="RMSE",
     paths=["../result/result_oracle/default-model/mode_test_.list", "../result/baselines/log/predictions_raw_RF.list"]):
@@ -60,8 +83,8 @@ def boxplot_local_evaluation(metric="RMSE",
         data2.append([x2, y2, sd])
         data3.append([x2, mare, mare_sd])
 
-    trace0 = go.Box(x=data[0][0], y=data[0][1], name='mode', marker=dict(color='#3D9970'), boxmean='sd')
-    trace1 = go.Box(x=data[1][0], y=data[1][1], name='baseline-RF', marker=dict(color='#FF851B'), boxmean='sd')
+    trace0 = go.Box(x=data[0][0], y=data[0][1], name='mode', marker=dict(color='#3D9970'), boxmean=True)
+    trace1 = go.Box(x=data[1][0], y=data[1][1], name='baseline-RF', marker=dict(color='#FF851B'), boxmean=True)
     data = [trace0, trace1]
     layout = go.Layout(title="Difference between predicted and truth by range",
         yaxis=dict(title='Difference (predict-truth)', zeroline=False),
@@ -69,27 +92,27 @@ def boxplot_local_evaluation(metric="RMSE",
     fig = go.Figure(data=data, layout=layout)
     plot(fig, filename='boxplot.html', auto_open=True)
 
-
-    trace0 = go.Bar(x=data2[0][0], y=data2[0][1], name='mode',
-                    error_y=dict( type='data', array=data2[0][2], visible=True))
-    trace1 = go.Bar(x=data2[1][0], y=data2[1][1], name='baseline-RF',
-                    error_y=dict( type='data', array=data2[1][2], visible=True))
-    data = [trace0, trace1]
-    layout = go.Layout(title="Absolute difference between predicted and truth by range",
-        barmode='group', yaxis=dict(title="Abs Diff"))
-    fig = go.Figure(data=data, layout=layout)
-    plot(fig, filename = 'barplot-mare.html', auto_open=True)
-
-    trace0 = go.Bar(x=data3[0][0], y=data3[0][1], name='mode',
-                    error_y=dict( type='data', array=data3[0][2], visible=True))
-    trace1 = go.Bar(x=data3[1][0], y=data3[1][1], name='baseline-RF',
-                    error_y=dict( type='data', array=data3[1][2], visible=True))
-    data = [trace0, trace1]
-    layout = go.Layout(title="MARE measure by range",
-        barmode='group', yaxis=dict(title="MARE"))
-    fig = go.Figure(data=data, layout=layout)
-    plot(fig, filename = 'barplot-diff.html', auto_open=True)
-
+    #
+    # trace0 = go.Bar(x=data2[0][0], y=data2[0][1], name='mode',
+    #                 error_y=dict( type='data', array=data2[0][2], visible=True))
+    # trace1 = go.Bar(x=data2[1][0], y=data2[1][1], name='baseline-RF',
+    #                 error_y=dict( type='data', array=data2[1][2], visible=True))
+    # data = [trace0, trace1]
+    # layout = go.Layout(title="Absolute difference between predicted and truth by range",
+    #     barmode='group', yaxis=dict(title="Abs Diff"))
+    # fig = go.Figure(data=data, layout=layout)
+    # plot(fig, filename = 'barplot-mare.html', auto_open=True)
+    #
+    # trace0 = go.Bar(x=data3[0][0], y=data3[0][1], name='mode',
+    #                 error_y=dict( type='data', array=data3[0][2], visible=True))
+    # trace1 = go.Bar(x=data3[1][0], y=data3[1][1], name='baseline-RF',
+    #                 error_y=dict( type='data', array=data3[1][2], visible=True))
+    # data = [trace0, trace1]
+    # layout = go.Layout(title="MARE measure by range",
+    #     barmode='group', yaxis=dict(title="MARE"))
+    # fig = go.Figure(data=data, layout=layout)
+    # plot(fig, filename = 'barplot-diff.html', auto_open=True)
+    #
 
 def local_evaluation(metric="RMSE"):
     paths = [
@@ -302,3 +325,4 @@ def global_evaluation():
 # local_evaluation(metric="RMSE")
 # local_evaluation(metric="MARE")
 boxplot_local_evaluation()
+lineplot_local_evaluation()
