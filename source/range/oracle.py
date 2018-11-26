@@ -34,9 +34,8 @@ def order(dic, by="RRMSE"):
     return sorted(dic.items(), key=lambda x: x[1][0][index], reverse=reverse)
 
 
-def run(data_path, str_class):
+def run(data_path, str_class, algs=["DT", "MLP", "RF"]):
 
-    algs = ["DT", "MLP", "RF"]
     data = pd.read_csv(data_path)
     folds=10
     rep=1
@@ -53,6 +52,9 @@ def run(data_path, str_class):
     range_high_TG = np.round(range_high_TG, 2)
     range_low_TG = np.round(range_low_TG,2)
 
+    print(range_high_TG)
+    print(range_low_TG)
+
     dic_oracle = {}
     for alg_low in algs:
         for alg_middle in algs:
@@ -64,8 +66,11 @@ def run(data_path, str_class):
 
     return dic_oracle
 
-def summary(max_value=3):
-    dic = run("../data/clean/oxides_Tg_train.csv", "Tg")
+def summary(max_value=3, algs=None):
+    if algs != None:
+        dic = run("../data/clean/oxides_Tg_train.csv", "Tg", algs)
+    else:
+        dic = run("../data/clean/oxides_Tg_train.csv", "Tg")
     dic_measure = {"MAE":0, "MSE":1, "R2_S":2, "RRMSE":3, "RMSE":4, "MARE":5, "R2":6}
 
     result = []
@@ -80,3 +85,7 @@ def summary(max_value=3):
                 round(dic_ord[i][1][1][dic_measure[measure]],4)))
         print("-------------------------")
     return result
+
+# summary(algs=["MLP"])
+# summary()
+#

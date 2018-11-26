@@ -285,6 +285,10 @@ def global_evaluation():
         "../result/baselines/log/predictions_pca20_RF.list", #baseline
         "../result/baselines/log/predictions_pca20_DT.list", #baseline
         "../result/baselines/log/predictions_pca20_MLP.list", #baseline
+        "../result/result_oracle/default-model/mean_test_mlp_.list", #trmb
+        "../result/result_oracle/default-model/mode_test_mlp_.list", #trmb
+        "../result/result_oracle/default-model/mean_test_mlp_all_leaf.list", #oracle
+        "../result/result_oracle/default-model/mode_test_mlp_all_leaf.list", #oracle
         "../result/result_oracle/default-model/mean_test_.list", #trmb
         "../result/result_oracle/default-model/mode_test_.list", #trmb
         "../result/result_oracle/default-model/mean_test_all_leaf.list", #oracle
@@ -296,8 +300,8 @@ def global_evaluation():
     data = []
     tags = ["baseline-RF", "baseline-DT", "baseline-MLP",
             "baseline-pca-RF", "baseline-pca-DT", "baseline-pca-MLP",
-            "mean", "mode",
-            "mean-oracle", "mode-oracle"]
+            "mean-mlp", "mode-mlp", "mean-mlp-oracle", "mode-mlp-oracle",
+            "mean", "mode", "mean-oracle", "mode-oracle"]
     for path,tag in zip(paths, tags):
         print(path)
         if str.find(path, 'baselines') >= 0:
@@ -324,6 +328,159 @@ def global_evaluation():
     df.to_csv("../result/performance/global_test_perf.csv", index=False)
 
 
+def boxplot_local_evaluation_mlp(metric="RMSE",
+    paths=["../result/result_oracle/default-model/mean_test_mlp_.list",
+           "../result/result_oracle/default-model/mode_test_mlp_.list",
+           "../result/baselines/log/predictions_raw_MLP.list"]):
+
+    dic_measure = {"MAE":0, "MSE":1, "R2_S":2, "RRMSE":3, "RMSE":4, "MARE":5, "R2":6}
+
+    data = []
+    data2 = []
+    data3 = []
+    for path in paths:
+        print(path)
+        if str.find(path, 'baselines') >= 0:
+            _, y_true, y_pred = pickle.load(open(path, 'rb'))
+        else:
+            y_true, y_pred = pickle.load(open(path, 'rb'))
+
+        y_true = np.array(y_true)
+        y_pred = np.array(y_pred)
+        max_value = np.max(y_true)
+        min_value = np.min(y_true)
+        steps = [[min_value+(50*i),min_value+(50*(i+1))] for i in range(0,int((max_value-min_value)/50)-4)]
+        steps[len(steps)-1][1] = max_value+1
+
+        x2 = []
+        mare = []
+        mare_sd = []
+
+        for step in steps:
+            aux_true = y_true[np.all([step[0]<=y_true, y_true<step[1]], axis=0)]
+            aux_pred = y_pred[np.all([step[0]<=y_true, y_true<step[1]], axis=0)]
+            x2 = x2+["{0} - {1}".format(step[0],step[1])]
+            aux_mare = (np.abs(aux_true - aux_pred) / aux_pred)
+            mare = mare + [np.mean(aux_mare)]
+            mare_sd = mare_sd + [np.std(aux_mare)]
+
+        data3.append([x2, mare, mare_sd])
+
+    trace0 = go.Bar(x=data3[0][0], y=data3[0][1], name='mean-mlp',
+                    error_y=dict( type='data', array=data3[0][2], visible=True))
+    trace1 = go.Bar(x=data3[1][0], y=data3[1][1], name='mode-mlp',
+                    error_y=dict( type='data', array=data3[1][2], visible=True))
+    trace2 = go.Bar(x=data3[2][0], y=data3[2][1], name='baseline-mlp',
+                    error_y=dict( type='data', array=data3[2][2], visible=True))
+    data = [trace0, trace1, trace2]
+    layout = go.Layout(title="MARE measure by range",
+        barmode='group', yaxis=dict(title="MARE"))
+    fig = go.Figure(data=data, layout=layout)
+    plot(fig, filename = 'barplot-diff-mlp.html', auto_open=True)
+
+
+def boxplot_local_evaluation_rf(metric="RMSE",
+    paths=["../result/result_oracle/default-model/mean_test_.list",
+           "../result/result_oracle/default-model/mode_test_.list",
+           "../result/baselines/log/predictions_raw_RF.list"]):
+
+    dic_measure = {"MAE":0, "MSE":1, "R2_S":2, "RRMSE":3, "RMSE":4, "MARE":5, "R2":6}
+
+    data = []
+    data2 = []
+    data3 = []
+    for path in paths:
+        print(path)
+        if str.find(path, 'baselines') >= 0:
+            _, y_true, y_pred = pickle.load(open(path, 'rb'))
+        else:
+            y_true, y_pred = pickle.load(open(path, 'rb'))
+
+        y_true = np.array(y_true)
+        y_pred = np.array(y_pred)
+        max_value = np.max(y_true)
+        min_value = np.min(y_true)
+        steps = [[min_value+(50*i),min_value+(50*(i+1))] for i in range(0,int((max_value-min_value)/50)-4)]
+        steps[len(steps)-1][1] = max_value+1
+
+        x2 = []
+        mare = []
+        mare_sd = []
+
+        for step in steps:
+            aux_true = y_true[np.all([step[0]<=y_true, y_true<step[1]], axis=0)]
+            aux_pred = y_pred[np.all([step[0]<=y_true, y_true<step[1]], axis=0)]
+            x2 = x2+["{0} - {1}".format(step[0],step[1])]
+            aux_mare = (np.abs(aux_true - aux_pred) / aux_pred)
+            mare = mare + [np.mean(aux_mare)]
+            mare_sd = mare_sd + [np.std(aux_mare)]
+
+        data3.append([x2, mare, mare_sd])
+
+    trace0 = go.Bar(x=data3[0][0], y=data3[0][1], name='mean',
+                    error_y=dict( type='data', array=data3[0][2], visible=True))
+    trace1 = go.Bar(x=data3[1][0], y=data3[1][1], name='mode',
+                    error_y=dict( type='data', array=data3[1][2], visible=True))
+    trace2 = go.Bar(x=data3[2][0], y=data3[2][1], name='baseline-rf',
+                    error_y=dict( type='data', array=data3[2][2], visible=True))
+    data = [trace0, trace1, trace2]
+    layout = go.Layout(title="MARE measure by range",
+        barmode='group', yaxis=dict(title="MARE"))
+    fig = go.Figure(data=data, layout=layout)
+    plot(fig, filename = 'barplot-diff-rf.html', auto_open=True)
+
+
+def boxplot_local_evaluation_mlp_rf(metric="RMSE",
+    paths=["../result/result_oracle/default-model/mean_test_.list",
+           "../result/result_oracle/default-model/mode_test_.list",
+           "../result/baselines/log/predictions_raw_MLP.list"]):
+
+    dic_measure = {"MAE":0, "MSE":1, "R2_S":2, "RRMSE":3, "RMSE":4, "MARE":5, "R2":6}
+
+    data = []
+    data2 = []
+    data3 = []
+    for path in paths:
+        print(path)
+        if str.find(path, 'baselines') >= 0:
+            _, y_true, y_pred = pickle.load(open(path, 'rb'))
+        else:
+            y_true, y_pred = pickle.load(open(path, 'rb'))
+
+        y_true = np.array(y_true)
+        y_pred = np.array(y_pred)
+        max_value = np.max(y_true)
+        min_value = np.min(y_true)
+        steps = [[min_value+(50*i),min_value+(50*(i+1))] for i in range(0,int((max_value-min_value)/50)-4)]
+        steps[len(steps)-1][1] = max_value+1
+
+        x2 = []
+        mare = []
+        mare_sd = []
+
+        for step in steps:
+            aux_true = y_true[np.all([step[0]<=y_true, y_true<step[1]], axis=0)]
+            aux_pred = y_pred[np.all([step[0]<=y_true, y_true<step[1]], axis=0)]
+            x2 = x2+["{0} - {1}".format(step[0],step[1])]
+            aux_mare = (np.abs(aux_true - aux_pred) / aux_pred)
+            mare = mare + [np.mean(aux_mare)]
+            mare_sd = mare_sd + [np.std(aux_mare)]
+
+        data3.append([x2, mare, mare_sd])
+
+    trace0 = go.Bar(x=data3[0][0], y=data3[0][1], name='mean',
+                    error_y=dict( type='data', array=data3[0][2], visible=True))
+    trace1 = go.Bar(x=data3[1][0], y=data3[1][1], name='mode',
+                    error_y=dict( type='data', array=data3[1][2], visible=True))
+    trace2 = go.Bar(x=data3[2][0], y=data3[2][1], name='baseline-mlp',
+                    error_y=dict( type='data', array=data3[2][2], visible=True))
+    data = [trace0, trace1, trace2]
+    layout = go.Layout(title="MARE measure by range",
+        barmode='group', yaxis=dict(title="MARE"))
+    fig = go.Figure(data=data, layout=layout)
+    plot(fig, filename = 'barplot-diff-mlp_rf.html', auto_open=True)
+
+
 global_evaluation()
 internal_regressors_evaluation()
 internal_classifier_evaluation()
@@ -332,3 +489,6 @@ local_evaluation(metric="RMSE")
 local_evaluation(metric="MARE")
 boxplot_local_evaluation()
 lineplot_local_evaluation()
+boxplot_local_evaluation_mlp()
+boxplot_local_evaluation_rf()
+boxplot_local_evaluation_mlp_rf()
