@@ -15,9 +15,10 @@ from plotly.offline import plot
 path_result = "../result/result_oracle/default-model/"
 
 def lineplot_local_evaluation(
-    paths=["../result/result_oracle/default-model/mode_test_.list", "../result/baselines/log/predictions_raw_RF.list"]):
+    paths=["../result/result_oracle/default-model/mode_test_.list", "../result/baselines/log/predictions_raw_RF.list",
+           "../result/result_oracle/default-model/modeoverlap_test_.list", "../result/baselines/log/predictions_raw_MLP.list"]):
 
-    for path, name in zip(paths, ["mode","RF"]):
+    for path, name in zip(paths, ["mode","RF", "mode_overlap", "MLP"]):
         print(path)
         if str.find(path, 'baselines') >= 0:
             _, y_true, y_pred = pickle.load(open(path, 'rb'))
@@ -34,8 +35,20 @@ def lineplot_local_evaluation(
                                     color = np.abs(y_true-y_pred), #set color equal to a variable
                                     colorscale='Viridis',
                                     showscale=True))
-        trace2 = go.Scatter(x=[0, 2000], y=[0,2000], line={'color':'#000000'}, showlegend=False)
-        data = [trace1,trace2]
+        trace2 = go.Scatter(x=[300, 1500], y=[300,1500],
+                            line = dict(color = ('rgb(0, 0, 0)'),
+                                        width = 4, dash = 'dot'),
+                            showlegend=False)
+        trace3 = go.Scatter(x=[300, 1500], y=[400,1600],
+                            line = dict(color = ('rgb(22, 96, 167)'),
+                                        width = 4, dash = 'dot'),
+                            showlegend=False)
+        trace4 = go.Scatter(x=[300, 1500], y=[200,1400],
+                            line = dict(color = ('rgb(22, 96, 167)'),
+                                        width = 4, dash = 'dot'),
+                            showlegend=False)
+
+        data = [trace1, trace2, trace3, trace4]
         layout = go.Layout(title="Difference between predicted and truth by range",
                            yaxis=dict(title="TG predicted"), xaxis=dict(title="TG True"))
         fig = go.Figure(data=data, layout=layout)
@@ -79,7 +92,7 @@ def boxplot_local_evaluation(metric="RMSE",
             y = y+diff.tolist()
             x = x+(["{0} - {1}".format(step[0],step[1])]*diff.shape[0])
             x2 = x2+["{0} - {1}".format(step[0],step[1])]
-            aux_mare = (np.abs(aux_true - aux_pred) / aux_pred)
+            aux_mare = (np.abs(aux_true - aux_pred) / aux_pred)*100
             mare = mare + [np.mean(aux_mare)]
             mare_sd = mare_sd + [np.std(aux_mare)]
             y2 = y2+[np.mean(np.abs(diff))]
@@ -178,6 +191,33 @@ def local_evaluation(metric="RMSE"):
     df = pd.DataFrame(data, columns=columns)
     df.to_csv("../result/performance/local_test_perf_{0}.csv".format(metric), index=False)
 
+
+def rem_baseline_evaluation():
+
+    paths = ["../result/result_oracle/default-model/mean_test_rem_.list",
+             "../result/result_oracle/default-model/mode_test_rem_.list",
+             '../result/baselines/log/predictions_ext_raw_RF.list',
+             '../result/baselines/log/predictions_ext_raw_MLP.list',
+             ]
+
+    data1 = {}
+    data2 = {}
+    for path, name in zip(paths,["mode", "mean","baseline-RF", "baseline-MLP"]):
+        sample = ["s"+str(i) for i in range(1,13)]
+        if str.find(path, 'baselines') >= 0:
+            _, y_true, y_pred = pickle.load(open(path, 'rb'))
+        else:
+            y_true, y_pred = pickle.load(open(path, 'rb'))
+        y_true = np.array(y_true)
+        y_pred = np.array(y_pred)
+        perc = (np.abs(y_true - y_pred) / y_true) * 100
+        data1[name] = y_pred
+        data2[name] = perc
+
+    df = pd.DataFrame(data1)
+    df.to_csv("../result/performance/{0}_test_rem_perf.csv".format("TG"), index=False)
+    df = pd.DataFrame(data2)
+    df.to_csv("../result/performance/{0}_test_rem_perf.csv".format("MARE"), index=False)
 
 
 def rem_evaluation():
@@ -492,3 +532,4 @@ lineplot_local_evaluation()
 boxplot_local_evaluation_mlp()
 boxplot_local_evaluation_rf()
 boxplot_local_evaluation_mlp_rf()
+rem_baseline_evaluation()

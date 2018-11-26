@@ -11,13 +11,14 @@ import pickle
 
 
 class TBMR:
-    def __init__(self, alg=("RF"), range_cut=(), seed=None):
+    def __init__(self, alg=("RF"), range_cut=(), overlap=False, seed=None):
         if seed is not None:
             self.seed = seed
             np.random.seed(self.seed)
 
         self.range_cut = range_cut
         self.alg = alg
+        self.overlap = overlap
 
     def next_seed(self):
         return np.random.randint(100000)
@@ -65,6 +66,7 @@ class TBMR:
 
         # leaf models
         self.regrs_leaf = []
+        i=0
         for d in data:
             if self.alg == "RF":
                 regr = RandomForestRegressor(n_estimators=100, random_state=self.next_seed())
@@ -160,7 +162,7 @@ def run_default(data_train_path, data_test_path, str_class, result_path, f_name)
     start = np.array([s.split("_")[0].split('-')[0] for s in summ]).astype(np.float)
     end = np.array([s.split("_")[0].split('-')[1] for s in summ]).astype(np.float)
     mean = (round(np.mean(start),2), round(np.mean(end),2))
-    conf = {"mode": mode, "mean":mean}
+    conf = {"mode": mode, "mean":mean, "modeoverlap":mode}
 
     r = []
     for c in conf.keys():
