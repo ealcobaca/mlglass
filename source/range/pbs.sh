@@ -31,7 +31,7 @@ mem=10
 cpus=10
 cd $1 
 
-for i in `seq 0 299`; do
+for i in `seq 0 362`; do
     while true; do
 
         SHT=$(totaljob | grep Parallel_short | sed "s/\s\+/|/g" | cut -d"|" -f5)
