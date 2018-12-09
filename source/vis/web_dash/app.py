@@ -11,34 +11,49 @@ from source.vis.web_dash.data import Data
 from source.vis.web_dash.layout import control
 from source.vis.web_dash.layout import plot_heat
 
-
 data_glass = Data()
 x, y, z = data_glass.map_data(method=['MLP', 'MLP', 'MLP'], metric='Global_mean_RRMSE')
 title_scale = 'RRMSE'
 
 app = dash.Dash()
 app.config['suppress_callback_exceptions'] = True
-app.layout = html.Div(control.layout() + [
-    html.Div(id='div_plot_heat')
-    , 'hovermode:'
-    ,  dcc.RadioItems(
-        id='radio_hovermode',
-        options=[
-            {'label': 'x', 'value': 'x'},
-            {'label': 'y', 'value': 'y'},
-            {'label': 'closest', 'value': 'closest'}
-        ],
-        value='x'
-    )
-    , html.Div(id='output')
-    , html.Div(id='output_local_metrics')
 
-])
+app.css.append_css({
+    'external_url': 'https://codepen.io/chriddyp/pen/bWLwgP.css'
+})
+
+app.layout = html.Div(
+    # style={'width': '100%', 'display': 'inline-block'}
+    children=control.layout()
+             + [
+                 # html.P('hovermode:')
+                 dcc.RadioItems(
+                     id='radio_hovermode'
+                     # , style={'display': 'inline-block'}
+                     , options=[
+                         {'label': 'x', 'value': 'x'},
+                         {'label': 'y', 'value': 'y'},
+                     ]
+                     , value='x'
+                 )
+                 , html.Div(id='div_plot_heat')
+                 , html.Div([
+            html.Div(
+                id='output'
+                , className="seven columns"
+            )
+            , html.Div(
+                id='output_local_metrics'
+                , className="five columns"
+            ),
+        ], className="row")
+             ])
+
 
 @app.callback(
     Output('div_plot_heat', 'children'),
     [
-     Input('bnt_plot', 'n_clicks')
+        Input('bnt_plot', 'n_clicks')
     ]
     , [
         State('drp_options_metrics', 'value')
@@ -53,10 +68,11 @@ def plot_heat_map(n_clicks, metric, method1, method2, method3):
     title_scale = metric
     return plot_heat.plot(x, y, z, title_scale)
 
+
 @app.callback(
     Output('plot_heatmap', 'figure')
     , [Input('radio_hovermode', 'value')
-       , Input('plot_heatmap', 'hoverData')]
+        , Input('plot_heatmap', 'hoverData')]
     , [State('plot_heatmap', 'figure')]
 )
 def change_hovermode(value, hoverData, figure):
@@ -105,8 +121,9 @@ def display_graph2d(chieldren, hover_mode, metric):
         x, y, dy, indices = data_glass.data_2d(value_fixed=e, metric=metric, variable_fixed=hover_mode)
         data_plot += plot_heat.scatter_2d(x, y, e, dy=dy, custom_data=indices)
 
-    return plot_heat.plot_2d(data_plot) + [
+    return plot_heat.plot_2d(data_plot, metric=metric) + [
     ]
+
 
 @app.callback(
     Output('output_local_metrics', 'children'),
@@ -119,10 +136,24 @@ def display_graph2d(chieldren, hover_mode, metric):
 )
 def display_graph2d(data, metric):
     index = data['points'][0]['customdata']
-    print(index)
-    print(data_glass.data.loc[index])
+    # print('-----------')
+    # print(index)
+    # print(data_glass.data.loc[index])
+    # print('S:', data_glass.data.loc[index]['S'])
+    # print('M:', data_glass.data.loc[index]['M'])
+    # print('E:', data_glass.data.loc[index]['E'])
+    metric_S = 'Local_S_mean_{:}'.format(metric)
+    metric_M = 'Local_M_mean_{:}'.format(metric)
+    metric_E = 'Local_E_mean_{:}'.format(metric)
+    y = [data_glass.data.loc[index][metric_S], data_glass.data.loc[index][metric_M], data_glass.data.loc[index][metric_E]]
+    # print(y)
+    metric_g = 'Global_mean_{:}'.format(metric)
+    # print(metric_g, data_glass.data.loc[index][metric_g])
+    x, x_ticks, y = data_glass.data_errors_range(index, metric=metric)
+    data = plot_heat.scatter_2d_errors_range(x=x, y=y, name='plot_2d_errors_range', x_ticks=x_ticks)
+    plot = plot_heat.plot_2d_errors_range(data, metric=metric, x_ticks=x_ticks)
+    return plot + [json.dumps(data)]
 
-    return json.dumps(data)
 
 @app.callback(
     Output('plot_data_2d', 'figure'),
