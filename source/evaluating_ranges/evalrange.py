@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import pickle
+import os.path
 from range.regressors import compute_performance
 
 
@@ -11,20 +12,42 @@ def oracle(low, high, alg_low, alg_middle, alg_high):
     res_low_name = "{0}{1}_low_{2}_.list".format(path_result, alg_low, low)
     res_middle_name = "{0}{1}_middle_{2}-{3}_.list".format(path_result, alg_middle, low, high)
     res_high_name = "{0}{1}_high_{2}_.list".format(path_result, alg_high, high)
+    print(res_low_name)
+    print(res_middle_name)
+    print(res_high_name)
 
-    res_low = pickle.load(open(res_low_name, "rb"))
-    res_middle = pickle.load(open(res_middle_name, "rb"))
-    res_high = pickle.load(open(res_high_name, "rb"))
+    res_low = res_middle = res_high = None
+    if os.path.isfile(res_low_name):
+        res_low = pickle.load(open(res_low_name, "rb"))
+    if os.path.isfile(res_middle_name):
+        res_middle = pickle.load(open(res_middle_name, "rb"))
+    if os.path.isfile(res_high_name):
+        res_high = pickle.load(open(res_high_name, "rb"))
 
-    res = [[np.concatenate((i[1], j[1], k[1])), np.concatenate((i[2], j[2], k[2]))] for i,j,k in zip(res_low, res_middle, res_high)]
+    # print(res_low)
+    # print(res_middle)
+    # print(res_high)
+
+    if res_low == res_high == None:
+        res = [[i[1], i[2]] for i in res_middle]
+    elif res_low == None:
+        res = [[np.concatenate((i[1], j[1])), np.concatenate((i[2], j[2]))] for i,j in zip(res_middle, res_high)]
+    elif res_high == None:
+        res = [[np.concatenate((i[1], j[1])), np.concatenate((i[2], j[2]))] for i,j in zip(res_low, res_middle)]
+    else:
+        res = [[np.concatenate((i[1], j[1], k[1])), np.concatenate((i[2], j[2], k[2]))] for i,j,k in zip(res_low, res_middle, res_high)]
+
     perf = [compute_performance(r[0], r[1]) for r in res]
-
     evaluation = np.concatenate([np.mean(perf, axis=0),np.std(perf, axis=0)])
 
     for res_range in [res_low, res_middle, res_high]:
-        res = [[i[1],i[2]] for i in res_range]
-        perf = [compute_performance(r[0], r[1]) for r in res]
-        evaluation = np.concatenate([evaluation, np.mean(perf, axis=0),np.std(perf, axis=0)])
+        if res_range == None:
+            a =np.array([None, None, None, None, None, None, None])
+            evaluation = np.concatenate([evaluation, a, a])
+        else:
+            res = [[i[1],i[2]] for i in res_range]
+            perf = [compute_performance(r[0], r[1]) for r in res]
+            evaluation = np.concatenate([evaluation, np.mean(perf, axis=0),np.std(perf, axis=0)])
 
     return evaluation
 
@@ -38,7 +61,7 @@ def run(data_path, str_class, algs=["DT", "MLP", "RF"]):
     X = data.drop([str_class], axis=1).values
     y = data[str_class].values
 
-    perceltil_inf = [1.5, 2.5, 3.5] +[5*i for i in range(1,7)]
+    perceltil_inf = [0, 1.5, 2.5, 3.5] +[5*i for i in range(1,7)]
     perceltil_sup = [(100-perceltil_inf[i]) for i in range(len(perceltil_inf))]
     range_high_TG = [np.percentile(y, perceltil_sup[i]) for i in range(len(perceltil_sup))]
     range_high_TG.reverse()
@@ -91,7 +114,7 @@ def run(data_path, str_class, algs=["DT", "MLP", "RF"]):
                  "Local_E_sd_RRMSE", "Local_E_sd_RMSE", "Local_E_sd_MARE", "Local_E_sd_R2"
                  ]
     df = pd.DataFrame(data, columns = cols_name)
-    df.to_csv('../result/evaluating_range/ranges.csv')
+    df.to_csv('../result/evaluating_range/ranges2.csv')
 
     return df
 
