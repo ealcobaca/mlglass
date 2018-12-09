@@ -75,6 +75,19 @@ class Data(object):
 
         return x.tolist(), y.tolist(), dy.tolist(), indices
 
+    def data_errors_range(self, index, metric):
+        single_data = self.sdata.loc[index]
+        x = [0, 1, 2]
+        x_ticks = ['initial', 'center', 'final']
+        metric_S = 'Local_S_mean_{:}'.format(metric)
+        metric_M = 'Local_M_mean_{:}'.format(metric)
+        metric_E = 'Local_E_mean_{:}'.format(metric)
+        y = [single_data[metric_S], single_data[metric_M], single_data[metric_E]]
+        # print(single_data[metric_S])
+        # print(metric_S)
+        # print('---------------------------')
+        # print(single_data)
+        return x, x_ticks, y
 
 if __name__ == '__main__':
     print(ROOT_DIR)
