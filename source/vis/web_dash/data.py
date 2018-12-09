@@ -34,7 +34,7 @@ class Data(object):
             '001': 'DT'
         }
 
-        data = pd.read_csv('{:}/result/evaluating_range/ranges.csv'.format(ROOT_DIR))
+        data = pd.read_csv('{:}/result/evaluating_range/ranges2.csv'.format(ROOT_DIR))
         self.data = data.iloc[:, 1:]
         self.sdata = None
 
@@ -83,13 +83,4 @@ class Data(object):
         metric_M = 'Local_M_mean_{:}'.format(metric)
         metric_E = 'Local_E_mean_{:}'.format(metric)
         y = [single_data[metric_S], single_data[metric_M], single_data[metric_E]]
-        # print(single_data[metric_S])
-        # print(metric_S)
-        # print('---------------------------')
-        # print(single_data)
         return x, x_ticks, y
-
-if __name__ == '__main__':
-    print(ROOT_DIR)
-    dados = Data()
-    dados.map_rmse()

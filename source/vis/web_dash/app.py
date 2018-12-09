@@ -150,8 +150,8 @@ def display_graph2d(data, metric):
     metric_g = 'Global_mean_{:}'.format(metric)
     # print(metric_g, data_glass.data.loc[index][metric_g])
     x, x_ticks, y = data_glass.data_errors_range(index, metric=metric)
-    data = plot_heat.scatter_2d_errors_range(x=x, y=y, name='plot_2d_errors_range', x_ticks=x_ticks)
-    plot = plot_heat.plot_2d_errors_range(data, metric=metric, x_ticks=x_ticks)
+    data1 = plot_heat.scatter_2d_errors_range(x=x, y=y, name='plot_2d_errors_range', x_ticks=x_ticks)
+    plot = plot_heat.plot_2d_errors_range(data1, metric=metric, x_ticks=x_ticks)
     return plot + [json.dumps(data)]
 
 

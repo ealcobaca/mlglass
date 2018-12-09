@@ -10,14 +10,14 @@ layout = {
               'showline': True,
               'linewidth': 2,
               'mirror': 'ticks'
-        , 'range': [0, 35]
+        , 'range': [-1, 35]
               }
     , 'xaxis': {
         'title': 'X initial',
         'showline': True,
         'linewidth': 2,
         'mirror': 'ticks'
-        , 'range': [0, 35]
+        , 'range': [-1, 35]
     }
     , 'hovermode': 'x'
 }
