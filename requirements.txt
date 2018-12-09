@@ -25,3 +25,6 @@ sklearn==0.0
 traitlets==4.3.2
 wcwidth==0.1.7
 xgboost==0.80
+dash==0.32.1
+dash-html-components
+dash-core-components
