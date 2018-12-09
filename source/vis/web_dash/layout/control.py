@@ -2,11 +2,10 @@ import dash_core_components as dcc
 import dash_html_components as html
 
 options_metrics = [
-    'Global_mean_R2_S'
-    , 'Global_mean_RRMSE'
-    , 'Global_mean_RMSE'
-    , 'Global_mean_MARE'
-    , 'Global_mean_R2'
+    'RRMSE'
+    , 'RMSE'
+    , 'MARE'
+    , 'R2'
 ]
 options_methos = [
      'MLP'

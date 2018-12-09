@@ -39,7 +39,7 @@ layout_2d = {
         'mirror': 'ticks'
         # , 'range': [0, 35]
     }
-    , 'hovermode': 'x'
+    , 'hovermode': 'closest'
 }
 
 
@@ -69,11 +69,17 @@ def scatter_color(x, y, z, title_scale):
     return data
 
 
-def scatter_2d(x, y, name):
+def scatter_2d(x, y, name, dy=[], custom_data=[]):
 
     data_s = dict(
-        x=x,
-        y=y
+        x=x
+        , y=y
+        , error_y=dict(
+            type='data',
+            array=dy,
+            visible=True
+        )
+        , customdata=custom_data
         , name=name
         , opacity=.5
         ,  mode='lines+markers'
