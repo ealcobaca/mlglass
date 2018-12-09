@@ -113,7 +113,7 @@ def experiment_conf_id(data_path, str_class):
     X = data.drop([str_class], axis=1).values
     y = data[str_class].values
 
-    perceltil_inf = [0.0, 1.5, 2.5, 3.5] +[5*i for i in range(1,7)]
+    perceltil_inf = [0, 1.5, 2.5, 3.5] +[5*i for i in range(1,7)]
     perceltil_sup = [(100-perceltil_inf[i]) for i in range(len(perceltil_inf))]
     range_high_TG = [np.percentile(y, perceltil_sup[i]) for i in range(len(perceltil_sup))]
     range_high_TG.reverse()
@@ -121,10 +121,9 @@ def experiment_conf_id(data_path, str_class):
 
     range_high_TG = np.round(range_high_TG, 2)
     range_low_TG = np.round(range_low_TG,2)
-    print(range_high_TG)
-    print(range_low_TG)
-    algs = ["RF"]
-    range_types = ["middle"]
+
+    algs = ["DT", "RF", "MLP"]
+    range_types = ["low", "middle", "high", "all"]
     for alg in algs:
         for range_type in range_types:
             if(range_type == "low"):
