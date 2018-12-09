@@ -12,9 +12,9 @@ from source.vis.web_dash.layout import control
 from source.vis.web_dash.layout import plot_heat
 
 
-data = Data()
-x, y, z = data.map_data(method=['MLP', 'MLP', 'MLP'], metric='Global_mean_RRMSE')
-title_scale = 'Global_mean_RRMSE'
+data_glass = Data()
+x, y, z = data_glass.map_data(method=['MLP', 'MLP', 'MLP'], metric='Global_mean_RRMSE')
+title_scale = 'RRMSE'
 
 app = dash.Dash()
 app.config['suppress_callback_exceptions'] = True
@@ -31,6 +31,7 @@ app.layout = html.Div(control.layout() + [
         value='x'
     )
     , html.Div(id='output')
+    , html.Div(id='output_local_metrics')
 
 ])
 
@@ -48,7 +49,7 @@ app.layout = html.Div(control.layout() + [
 def plot_heat_map(n_clicks, metric, method1, method2, method3):
     if n_clicks is None or metric == '' or method1 == '' or method2 == '' or method3 == '':
         return ['Select metric and methods.']
-    x, y, z = data.map_data(method=[method1, method2, method3], metric=metric)
+    x, y, z = data_glass.map_data(method=[method1, method2, method3], metric='Global_mean_{:}'.format(metric))
     title_scale = metric
     return plot_heat.plot(x, y, z, title_scale)
 
@@ -60,7 +61,8 @@ def plot_heat_map(n_clicks, metric, method1, method2, method3):
 )
 def change_hovermode(value, hoverData, figure):
     figure['layout']['hovermode'] = value
-
+    if hoverData is None:
+        return figure
     if value == 'x':
         x = hoverData['points'][0]['x']
         figure['data'][-1] = dict(
@@ -100,11 +102,27 @@ def display_graph2d(chieldren, hover_mode, metric):
     data_plot = []
 
     for e in [1.5, 2.5, 3.5, 5, 10, 15, 20, 25, 30]:
-        x, y = data.data_2d(value_fixed=e, metric=metric, variable_fixed=hover_mode)
-        data_plot += plot_heat.scatter_2d(x, y, e)
+        x, y, dy, indices = data_glass.data_2d(value_fixed=e, metric=metric, variable_fixed=hover_mode)
+        data_plot += plot_heat.scatter_2d(x, y, e, dy=dy, custom_data=indices)
 
     return plot_heat.plot_2d(data_plot) + [
     ]
+
+@app.callback(
+    Output('output_local_metrics', 'children'),
+    [
+        Input('plot_data_2d', 'hoverData'),
+    ]
+    , [
+        State('drp_options_metrics', 'value')
+    ]
+)
+def display_graph2d(data, metric):
+    index = data['points'][0]['customdata']
+    print(index)
+    print(data_glass.data.loc[index])
+
+    return json.dumps(data)
 
 @app.callback(
     Output('plot_data_2d', 'figure'),
@@ -117,6 +135,8 @@ def display_graph2d(chieldren, hover_mode, metric):
     ]
 )
 def display_hoverdata(hoverData, clickData, metric, figure, hovermode):
+    if hoverData is None:
+        return figure
     if hovermode == 'x':
         x_fixed = hoverData['points'][0]['x']
     else:
@@ -133,5 +153,6 @@ def display_hoverdata(hoverData, clickData, metric, figure, hovermode):
     return figure
 
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
+def main1():
     app.run_server(debug=True)
