@@ -57,7 +57,7 @@ class Data(object):
         self.sdata = sdata
         return x_i.tolist(), x_f.tolist(), y.tolist()
 
-    def data_2d(self, value_fixed, metric='Global_mean_RRMSE', variable_fixed='x'):
+    def data_2d(self, value_fixed, metric='RRMSE', variable_fixed='x'):
         if self.sdata is None:
             return [], []
         if variable_fixed == 'x':
@@ -66,9 +66,14 @@ class Data(object):
         else:
             slice_data = self.sdata[self.sdata['E'] == value_fixed]
             x = slice_data['S']
+        metric_y = 'Global_mean_{:}'.format(metric)
+        y = slice_data[metric_y]
 
-        y = slice_data[metric]
-        return x.tolist(), y.tolist()
+        metric_dy = 'Global_sd_{:}'.format(metric)
+        dy = slice_data[metric_dy]
+        indices = slice_data.index
+
+        return x.tolist(), y.tolist(), dy.tolist(), indices
 
 
 if __name__ == '__main__':
