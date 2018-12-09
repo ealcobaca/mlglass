@@ -12,9 +12,9 @@ def oracle(low, high, alg_low, alg_middle, alg_high):
     res_low_name = "{0}{1}_low_{2}_.list".format(path_result, alg_low, low)
     res_middle_name = "{0}{1}_middle_{2}-{3}_.list".format(path_result, alg_middle, low, high)
     res_high_name = "{0}{1}_high_{2}_.list".format(path_result, alg_high, high)
-    print(res_low_name)
-    print(res_middle_name)
-    print(res_high_name)
+    # print(res_low_name)
+    # print(res_middle_name)
+    # print(res_high_name)
 
     res_low = res_middle = res_high = None
     if os.path.isfile(res_low_name):
@@ -28,7 +28,7 @@ def oracle(low, high, alg_low, alg_middle, alg_high):
     # print(res_middle)
     # print(res_high)
 
-    if res_low == res_high == None:
+    if res_low == None and res_high == None:
         res = [[i[1], i[2]] for i in res_middle]
     elif res_low == None:
         res = [[np.concatenate((i[1], j[1])), np.concatenate((i[2], j[2]))] for i,j in zip(res_middle, res_high)]
@@ -64,14 +64,16 @@ def run(data_path, str_class, algs=["DT", "MLP", "RF"]):
     perceltil_inf = [0, 1.5, 2.5, 3.5] +[5*i for i in range(1,7)]
     perceltil_sup = [(100-perceltil_inf[i]) for i in range(len(perceltil_inf))]
     range_high_TG = [np.percentile(y, perceltil_sup[i]) for i in range(len(perceltil_sup))]
-    range_high_TG.reverse()
+    # range_high_TG.reverse()
     range_low_TG = [np.percentile(y, perceltil_inf[i]) for i in range(len(perceltil_inf))]
 
     range_high_TG = np.round(range_high_TG, 2)
     range_low_TG = np.round(range_low_TG,2)
 
-    # print(range_high_TG)
-    # print(range_low_TG)
+    print(range_low_TG)
+    print(perceltil_inf)
+    print(range_high_TG)
+    print(perceltil_sup)
 
     dic_oracle = {}
     data = []
@@ -118,4 +120,4 @@ def run(data_path, str_class, algs=["DT", "MLP", "RF"]):
 
     return df
 
-run('../data/clean/oxides_Tg_train.csv', 'Tg')
+a = run('../data/clean/oxides_Tg_train.csv', 'Tg')
