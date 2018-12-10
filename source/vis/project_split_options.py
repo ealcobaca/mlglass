@@ -204,18 +204,19 @@ if __name__ == '__main__':
         '001': 'DT'
     }
 
-    data = pd.read_csv('../../result/evaluating_range/ranges.csv')
+    data = pd.read_csv('../../result/evaluating_range/ranges_2.0.csv')
     data = data.iloc[:, 1:]
+    data = data.dropna()
     metric = 'Global_mean_RMSE'
     metric_sufix = 'RMSE'
     method = 't-SNE'
-    out_path = './xlocal_RMSE_t-SNE'
-    # data_t = subset_and_transform3(data, metric, start2tg, end2tg)
-    # hover_text = get_hover_text(data, start2tg, end2tg, code2method,
-    #                             metric)
-    data_t = subset_and_transform_local2(data, metric_sufix, start2tg, end2tg)
-    hover_text = get_hover_text_local(data, start2tg, end2tg, code2method,
-                                      metric_sufix)
+    out_path = './xcomposed_RMSE_t-SNE'
+    data_t = subset_and_transform3(data, metric, start2tg, end2tg)
+    hover_text = get_hover_text(data, start2tg, end2tg, code2method,
+                                metric)
+    # data_t = subset_and_transform_local2(data, metric_sufix, start2tg, end2tg)
+    # hover_text = get_hover_text_local(data, start2tg, end2tg, code2method,
+    #                                   metric_sufix)
     projected = project_data_points(data_t, method)
     plot_projections(projected, data.loc[:, metric], metric,
                      hover_text, out_path)
