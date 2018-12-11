@@ -102,7 +102,8 @@ def get_hover_text(data, start2tg, end2tg, code2method, metric):
     return hover_text
 
 
-def get_hover_text_local(data, start2tg, end2tg, code2method, metric):
+def get_hover_text_local(data, start2tg, end2tg, code2method, metric,
+                         global_name):
     hover_text = []
     for index, line in data.iterrows():
         m_s = code2method['{}{}{}'.format(int(line['S_MLP']),
@@ -114,8 +115,9 @@ def get_hover_text_local(data, start2tg, end2tg, code2method, metric):
         m_e = code2method['{}{}{}'.format(int(line['E_MLP']),
                                           int(line['E_RF']),
                                           int(line['E_DT']))]
-        ht = '{}: ({:0.2f}, {:0.2f}, {:0.2f})<br>'.format(
+        ht = '{} ({:0.2f}): ({:0.2f}, {:0.2f}, {:0.2f})<br>'.format(
                 metric,
+                line[global_name],
                 line['Local_S_mean_{}'.format(metric)],
                 line['Local_M_mean_{}'.format(metric)],
                 line['Local_E_mean_{}'.format(metric)]
@@ -187,15 +189,15 @@ if __name__ == '__main__':
     }
 
     end2tg = {
-        1.5: 838.15,
-        2.5: 863.15,
-        3.5: 891.15,
-        5.0: 929.15,
+        30.0: 838.15,
+        25.0: 863.15,
+        20.0: 891.15,
+        15.0: 929.15,
         10.0: 975.15,
-        15.0: 1036.15,
-        20.0: 1061.15,
-        25.0: 1082.43,
-        30.0: 1116.15
+        5.0: 1036.15,
+        3.5: 1061.15,
+        2.5: 1082.43,
+        1.5: 1116.15
     }
 
     code2method = {
@@ -204,18 +206,19 @@ if __name__ == '__main__':
         '001': 'DT'
     }
 
-    data = pd.read_csv('../../result/evaluating_range/ranges.csv')
+    data = pd.read_csv('../../result/evaluating_range/ranges_2.0.csv')
     data = data.iloc[:, 1:]
+    data = data.dropna()
     metric = 'Global_mean_RMSE'
     metric_sufix = 'RMSE'
-    method = 't-SNE'
-    out_path = './xlocal_RMSE_t-SNE'
-    # data_t = subset_and_transform3(data, metric, start2tg, end2tg)
+    method = 'PCA'
+    out_path = './xlocal_RMSE_PCA'
+    # data_t = subset_and_transform(data, metric, start2tg, end2tg)
     # hover_text = get_hover_text(data, start2tg, end2tg, code2method,
     #                             metric)
     data_t = subset_and_transform_local2(data, metric_sufix, start2tg, end2tg)
     hover_text = get_hover_text_local(data, start2tg, end2tg, code2method,
-                                      metric_sufix)
+                                      metric_sufix, metric)
     projected = project_data_points(data_t, method)
     plot_projections(projected, data.loc[:, metric], metric,
                      hover_text, out_path)
