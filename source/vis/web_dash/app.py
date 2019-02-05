@@ -36,7 +36,13 @@ app.layout = html.Div(
                      ]
                      , value='x'
                  )
-                 , html.Div(id='div_plot_heat')
+                 , html.Div([
+            html.Div(id='div_plot_heat', className="seven columns")
+            , html.Div(
+                id='div_histogram'
+                , className="five columns"
+                , children=plot_heat.histogram(0, 0))
+        ])
                  , html.Div([
             html.Div(
                 id='output'
@@ -145,7 +151,8 @@ def display_graph2d(data, metric):
     metric_S = 'Local_S_mean_{:}'.format(metric)
     metric_M = 'Local_M_mean_{:}'.format(metric)
     metric_E = 'Local_E_mean_{:}'.format(metric)
-    y = [data_glass.data.loc[index][metric_S], data_glass.data.loc[index][metric_M], data_glass.data.loc[index][metric_E]]
+    y = [data_glass.data.loc[index][metric_S], data_glass.data.loc[index][metric_M],
+         data_glass.data.loc[index][metric_E]]
     # print(y)
     metric_g = 'Global_mean_{:}'.format(metric)
     # print(metric_g, data_glass.data.loc[index][metric_g])
@@ -174,13 +181,36 @@ def display_hoverdata(hoverData, clickData, metric, figure, hovermode):
         x_fixed = hoverData['points'][0]['y']
     data = figure['data']
     for sdata in data:
-        pprint(sdata['name'])
+        # pprint(sdata['name'])
         if sdata['name'] == x_fixed:
             sdata['opacity'] = 1
             # sdata['lines']['opacity'] = 1
         else:
             sdata['opacity'] = 0.2
             # sdata['lines']['opacity'] = 0.2
+    return figure
+
+
+@app.callback(
+    Output('plot_histogram', 'figure'),
+    [Input('plot_heatmap', 'hoverData'),
+    ]
+    ,[State('plot_histogram', 'figure')]
+)
+def display_hoverdata1(hoverData, figure):
+    if hoverData is None:
+        return figure
+
+    data = plot_heat.data_histogram(hoverData['points'][0]['x'], hoverData['points'][0]['y'])
+    figure['data'] = data
+    # for sdata in data:
+    #     pprint(sdata['name'])
+    #     if sdata['name'] == x_fixed:
+    #         sdata['opacity'] = 1
+    #         # sdata['lines']['opacity'] = 1
+    #     else:
+    #         sdata['opacity'] = 0.2
+    #         # sdata['lines']['opacity'] = 0.2
     return figure
 
 

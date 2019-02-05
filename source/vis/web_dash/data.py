@@ -1,11 +1,13 @@
 import pandas as pd
 from definitions import ROOT_DIR
 
+
 class Data(object):
 
     def __init__(self):
         self.start2tg = {
-            1.5: 468.15,
+            0.0: 350.00
+            , 1.5: 468.15,
             2.5: 493.15,
             3.5: 512.15,
             5.0: 530.15,
@@ -17,15 +19,16 @@ class Data(object):
         }
 
         self.end2tg = {
-            1.5: 838.15,
-            2.5: 863.15,
-            3.5: 891.15,
-            5.0: 929.15,
+            0.0: 1451.0
+            , 1.5: 1116.15
+            , 2.5: 1082.43,
+            3.5: 1061.15,
+            5.0: 1036.15,
             10.0: 975.15,
-            15.0: 1036.15,
-            20.0: 1061.15,
-            25.0: 1082.43,
-            30.0: 1116.15
+            15.0: 929.15,
+            20.0: 891.15,
+            25.0: 863.15,
+            30.0: 838.15,
         }
 
         self.code2method = {
@@ -34,7 +37,7 @@ class Data(object):
             '001': 'DT'
         }
 
-        data = pd.read_csv('{:}/result/evaluating_range/ranges2.csv'.format(ROOT_DIR))
+        data = pd.read_csv('{:}/result/evaluating_range/ranges_2.0.csv'.format(ROOT_DIR))
         self.data = data.iloc[:, 1:]
         self.sdata = None
 
