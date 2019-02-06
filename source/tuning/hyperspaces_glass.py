@@ -1,13 +1,23 @@
+import pickle
 import numpy as np
+import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.tree import DecisionTreeRegressor
 from catboost import CatBoostRegressor
 from sklearn.neural_network import MLPRegressor
 from paje.opt.hp_space import HPSpace
+from paje.opt.random_search import RandomSearch
 from sklearn.model_selection import KFold
 
 
-def mlp_archictecture_generator():
+def id_generator():
+    id = 0
+    while True:
+        yield id
+        id += 1
+
+
+def mlp_archictecture_builder():
     hidd1_min = 10
     hidd1_max = 100
     hidd2_min = 0
@@ -26,6 +36,8 @@ def mlp_archictecture_generator():
             return (l1, l2,)
 
         return (l1, l2, l3)
+
+    return mlp_tuple
 
 
 def get_loss_function():
@@ -51,25 +63,6 @@ def get_regressor(algorithm):
         return None
 
 
-def objective(**kwargs):
-    model = kwargs.pop('predictor')
-    X = kwargs.pop('X')
-    y = kwargs.pop('y')
-    seed = kwargs.pop('seed')
-    kf = KFold(n_splits=10, random_state=seed, shuffle=True)
-    loss_func = get_loss_function()
-    errors = []
-    for train_index, test_index in kf.split(X):
-        X_train, y_train = X[train_index], y[train_index]
-        X_test, y_test = X[test_index], y[test_index]
-        regressor = model(**kwargs)
-        regressor.fit(X_train, y_train)
-        error = loss_func(y_test, regressor.predict(X_test))
-        errors.append(error)
-    # Verificar se vamos salvar mais coisas
-    return np.median(errors)
-
-
 def catboost_space():
     hp_catboost = HPSpace(name='Catboost')
     hp_catboost.add_axis(hp_catboost, 'one_hot_max_size', 'z', 2, 5,
@@ -87,6 +80,10 @@ def catboost_space():
                          np.random.ranf)
     hp_catboost.add_axis(hp_catboost, 'border_count', 'z', 128, 254,
                          np.random.ranf)
+    hp_catboost.add_axis(hp_catboost, 'verbose', 'c', None, None,
+                         [False])
+    hp_catboost.add_axis(hp_catboost, 'allow_writing_files', 'c', None, None,
+                         [False])
     hp_catboost.print(data=True)
 
     return hp_catboost
@@ -122,7 +119,7 @@ def rf_space():
 def mlp_space():
     hp_mlp = HPSpace(name='MLP')
     hp_mlp.add_axis(hp_mlp, 'hidden_layer_sizes', 'f', None, None,
-                    mlp_archictecture_generator)
+                    mlp_archictecture_builder())
     hp_mlp.add_axis(hp_mlp, 'solver', 'c', None, None,
                     ['lbfgs', 'sgd', 'adam'])
     hp_mlp.add_axis(hp_mlp, 'activation', 'c', None, None,
@@ -156,3 +153,64 @@ def get_search_space(algorithm):
     else:
         print('Invalid regression technique.')
         return None
+
+
+def objective(**kwargs):
+    model = kwargs.pop('predictor')
+    X = kwargs.pop('X')
+    y = kwargs.pop('y')
+    loss_func = kwargs.pop('loss_func_tuning')
+    seed = kwargs.pop('seed')
+    id_gen = kwargs.pop('id_gen')
+    model_name = kwargs.pop('model_name')
+    output_folder = kwargs.pop('output_folder')
+
+    kf = KFold(n_splits=10, random_state=seed, shuffle=True)
+    errors = []
+    for train_index, test_index in kf.split(X):
+        X_train, y_train = X[train_index], y[train_index]
+        X_test, y_test = X[test_index], y[test_index]
+        regressor = model(**kwargs)
+        regressor.fit(X_train, y_train)
+        error = loss_func(y_test, regressor.predict(X_test))
+        errors.append(error)
+
+    with open('{0}/{1}_{2}.rcfg'.format(output_folder, model_name,
+                                        next(id_gen)), 'wb') as file:
+        out_data = {
+            'reg_conf': kwargs,
+            'errors': errors
+        }
+        pickle.dump(file=file, obj=out_data, protocol=-1)
+    return np.median(errors)
+
+
+# Automatizar
+regressor = 'catboost'
+input_file = '~/Documents/predicting_high_low_TG/data/clean/oxides_Tg_train.csv'
+
+output_folder = '/home/mastelini/teste_tuning'
+max_iter = 2
+seed = 2019
+
+if __name__ == '__main__':
+    data = pd.read_csv(input_file)
+    X, y = data.iloc[:, :-1].values, data.iloc[:, -1].values
+
+    rs = RandomSearch(get_search_space(algorithm=regressor), max_iter)
+    best_conf = rs.fmin(
+        objective=objective,
+        predictor=get_regressor(algorithm=regressor),
+        loss_func_tuning=get_loss_function(),
+        X=X,
+        y=y,
+        seed=seed,
+        id_gen=id_generator(),
+        model_name=regressor,
+        output_folder=output_folder
+    )
+
+    with open('{0}/best_configuration_{1}.rcfg'.format(output_folder,
+              regressor), 'wb') as file:
+        pickle.dump(file=file, obj=best_conf, protocol=-1)
+    print(best_conf)
