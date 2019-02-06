@@ -1,3 +1,4 @@
+import sys
 import pickle
 import numpy as np
 import pandas as pd
@@ -185,15 +186,17 @@ def objective(**kwargs):
     return np.median(errors)
 
 
-# Automatizar
-regressor = 'catboost'
-input_file = '~/Documents/predicting_high_low_TG/data/clean/oxides_Tg_train.csv'
+def main(parameters):
+    if (len(parameters) - 1) != 5:
+        print("Missing required parameters: (regressor, input_file, \
+              output_folder, max_iter, seed)")
+    regressor = parameters[1]
+    input_file = parameters[2]
+    output_folder = parameters[3]
 
-output_folder = '/home/mastelini/teste_tuning'
-max_iter = 2
-seed = 2019
+    max_iter = int(parameters[4])
+    seed = int(parameters[5])
 
-if __name__ == '__main__':
     data = pd.read_csv(input_file)
     X, y = data.iloc[:, :-1].values, data.iloc[:, -1].values
 
@@ -214,3 +217,7 @@ if __name__ == '__main__':
               regressor), 'wb') as file:
         pickle.dump(file=file, obj=best_conf, protocol=-1)
     print(best_conf)
+
+
+if __name__ == '__main__':
+    main(sys.argv)
