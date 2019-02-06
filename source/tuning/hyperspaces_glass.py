@@ -1,3 +1,4 @@
+import os
 import sys
 import pickle
 import numpy as np
@@ -193,6 +194,9 @@ def main(parameters):
     regressor = parameters[1]
     input_file = parameters[2]
     output_folder = parameters[3]
+
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
 
     max_iter = int(parameters[4])
     seed = int(parameters[5])
