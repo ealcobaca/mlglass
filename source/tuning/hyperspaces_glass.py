@@ -5,7 +5,27 @@ from catboost import CatBoostRegressor
 from sklearn.neural_network import MLPRegressor
 from paje.opt.hp_space import HPSpace
 from sklearn.model_selection import KFold
-from sklearn.metrics import make_scorer
+
+
+def mlp_archictecture_generator():
+    hidd1_min = 10
+    hidd1_max = 100
+    hidd2_min = 0
+    hidd2_max = 100
+    hidd3_min = 0
+    hidd3_max = 100
+
+    def mlp_tuple():
+        l1 = np.random.randint(hidd1_min, hidd1_max)
+        l2 = np.random.randint(hidd2_min, hidd2_max)
+        l3 = np.random.randint(hidd3_min, hidd3_max)
+
+        if l2 == 0:
+            return (l1,)
+        if l3 == 0:
+            return (l1, l2,)
+
+        return (l1, l2, l3)
 
 
 def get_loss_function():
@@ -100,7 +120,28 @@ def rf_space():
 
 
 def mlp_space():
-    pass
+    hp_mlp = HPSpace(name='MLP')
+    hp_mlp.add_axis(hp_mlp, 'hidden_layer_sizes', 'f', None, None,
+                    mlp_archictecture_generator)
+    hp_mlp.add_axis(hp_mlp, 'solver', 'c', None, None,
+                    ['lbfgs', 'sgd', 'adam'])
+    hp_mlp.add_axis(hp_mlp, 'activation', 'c', None, None,
+                    ['logistic', 'tanh', 'relu'])
+    hp_mlp.add_axis(hp_mlp, 'alpha', 'c', None, None,
+                    [10 ** -5, 10 ** -4, 10 ** -3])
+    hp_mlp.add_axis(hp_mlp, 'learning_rate', 'c', None, None,
+                    ['constant', 'adaptive'])
+    hp_mlp.add_axis(hp_mlp, 'learning_rate_init', 'r', 10 ** -3, 10 ** -1,
+                    np.random.ranf)
+    hp_mlp.add_axis(hp_mlp, 'batch_size', 'c', None, None,
+                    [200, 500, 1000])
+    hp_mlp.add_axis(hp_mlp, 'max_iter', 'z', 200, 1000,
+                    np.random.ranf)
+    hp_mlp.add_axis(hp_mlp, 'momentum', 'r', 0, 1,
+                    np.random.ranf)
+    hp_mlp.print(data=True)
+
+    return hp_mlp
 
 
 def get_search_space(algorithm):
