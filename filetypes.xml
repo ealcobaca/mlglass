@@ -3,6 +3,7 @@
     <extensionMap>
       <mapping pattern="greek_letters.txt" type="PLAIN_TEXT" />
       <mapping ext="md" type="PLAIN_TEXT" />
+      <mapping ext="stl" type="PLAIN_TEXT" />
     </extensionMap>
   </component>
 </application>
