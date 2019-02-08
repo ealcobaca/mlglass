@@ -205,7 +205,8 @@ def main(parameters):
     data = pd.read_csv(input_file)
     X, y = data.iloc[:, :-1].values, data.iloc[:, -1].values
 
-    rs = RandomSearch(get_search_space(algorithm=regressor), max_iter)
+    rs = RandomSearch(get_search_space(algorithm=regressor), max_iter=max_iter,
+                     n_jobs=35)
     best_conf = rs.fmin(
         objective=objective,
         predictor=get_regressor(algorithm=regressor),
