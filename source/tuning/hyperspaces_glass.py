@@ -1,4 +1,4 @@
-import os
+import os, datetime
 import sys
 import pickle
 import numpy as np
@@ -13,12 +13,12 @@ from sklearn.model_selection import KFold
 
 
 
-def id_generator():
-    id = 0
-    while True:
-        yield id
-        id += 1
-
+# def id_generator():
+#     id = 0
+#     while True:
+#         yield id
+#         id += 1
+#
 
 def mlp_archictecture_builder():
     hidd1_min = 10
@@ -43,14 +43,10 @@ def mlp_archictecture_builder():
     return mlp_tuple
 
 
-def get_loss_function():
-    def RRMSE(y, y_pred):
-        num = np.sum((y - y_pred) ** 2)
-        dem = np.sum((y - np.mean(y)) ** 2)
-        return np.sqrt(num/dem)
-
-    return RRMSE
-
+def RRMSE(y, y_pred):
+    num = np.sum((y - y_pred) ** 2)
+    dem = np.sum((y - np.mean(y)) ** 2)
+    return np.sqrt(num/dem)
 
 def get_regressor(algorithm):
     if algorithm == 'rf':
@@ -164,7 +160,6 @@ def objective(**kwargs):
     y = kwargs.pop('y')
     loss_func = kwargs.pop('loss_func_tuning')
     seed = kwargs.pop('seed')
-    id_gen = kwargs.pop('id_gen')
     model_name = kwargs.pop('model_name')
     output_folder = kwargs.pop('output_folder')
 
@@ -178,8 +173,8 @@ def objective(**kwargs):
         error = loss_func(y_test, regressor.predict(X_test))
         errors.append(error)
 
-    with open('{0}/{1}_{2}.rcfg'.format(output_folder, model_name,
-                                        next(id_gen)), 'wb') as file:
+    with open('{0}/{1}_{2}_.rcfg'.format(
+        output_folder,model_name, str(datetime.datetime.now())), 'wb') as file:
         out_data = {
             'reg_conf': kwargs,
             'errors': errors
@@ -205,16 +200,16 @@ def main(parameters):
     data = pd.read_csv(input_file)
     X, y = data.iloc[:, :-1].values, data.iloc[:, -1].values
 
-    rs = RandomSearch(get_search_space(algorithm=regressor), max_iter=max_iter,
-                     n_jobs=35)
+    rs = RandomSearch(get_search_space(algorithm=regressor),
+                      max_iter=max_iter, n_jobs=6)
     best_conf = rs.fmin(
         objective=objective,
         predictor=get_regressor(algorithm=regressor),
-        loss_func_tuning=get_loss_function(),
+        loss_func_tuning=RRMSE,
         X=X,
         y=y,
         seed=seed,
-        id_gen=id_generator(),
+        # id_gen=id_generator(),
         model_name=regressor,
         output_folder=output_folder
     )
