@@ -1,5 +1,5 @@
 input_file := ../../data/clean/oxides_Tg_train.csv
-output_folder := ../../result/tuning_raw
+output_folder := ../../result/cat
 max_iter := 500
 seed := 2019
 run_clean_data:
