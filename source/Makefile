@@ -22,3 +22,7 @@ run_tuning_catboost:
 	@cd tuning; python hyperspaces_glass.py catboost $(input_file) $(output_folder) $(max_iter) $(seed)
 run_tuning_mlp:
 	@cd tuning; python hyperspaces_glass.py mlp $(input_file) $(output_folder) $(max_iter) $(seed)
+run_tuning_svr:
+	@cd tuning; python hyperspaces_glass.py svr $(input_file) $(output_folder) $(max_iter) $(seed)
+run_tuning_knn:
+	@cd tuning; python hyperspaces_glass.py knn $(input_file) $(output_folder) $(max_iter) $(seed)

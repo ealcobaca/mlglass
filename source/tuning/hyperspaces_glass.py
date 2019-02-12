@@ -1,4 +1,5 @@
-import os, datetime
+import os
+import datetime
 import sys
 import pickle
 import numpy as np
@@ -10,8 +11,8 @@ from sklearn.neural_network import MLPRegressor
 from paje.opt.hp_space import HPSpace
 from paje.opt.random_search import RandomSearch
 from sklearn.model_selection import KFold
-
-
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.svm import SVR
 
 # def id_generator():
 #     id = 0
@@ -48,6 +49,7 @@ def RRMSE(y, y_pred):
     dem = np.sum((y - np.mean(y)) ** 2)
     return np.sqrt(num/dem)
 
+
 def get_regressor(algorithm):
     if algorithm == 'rf':
         return RandomForestRegressor
@@ -57,6 +59,10 @@ def get_regressor(algorithm):
         return DecisionTreeRegressor
     elif algorithm == 'mlp':
         return MLPRegressor
+    elif algorithm =='knn':
+        return KNeighborsRegressor
+    elif algorithm == 'svr':
+        return SVR
     else:
         print('Invalid regression technique.')
         return None
@@ -140,6 +146,34 @@ def mlp_space():
     return hp_mlp
 
 
+def knn_space():
+    hp_knn = HPSpace(name='k-NN')
+    hp_knn.add_axis(hp_knn, 'n_neighbors', 'z', 1, 1000, np.random.ranf)
+    hp_knn.add_axis(hp_knn, 'weights', 'c', None, None,
+                    ['uniform', 'distance'])
+    hp_knn.print(data=True)
+
+    return hp_knn
+
+
+def svr_space():
+    hp_svr = HPSpace(name='SVR')
+    hp_svr.add_axis(hp_svr, 'kernel', 'c', None, None,
+                    ['linear', 'poly', 'rbf'])
+    hp_svr.add_axis(hp_svr, 'degree', 'c', None, None,
+                    [2, 3, 4])
+    hp_svr.add_axis(hp_svr, 'gamma', 'c', None, None, ['auto', 'scale'])
+    hp_svr.add_axis(hp_svr, 'coef0', 'r', 0.0, 100.0, np.random.ranf)
+    hp_svr.add_axis(hp_svr, 'tol', 'c', None, None, [1e-4])
+    hp_svr.add_axis(hp_svr, 'C', 'r', 0.01, 100, np.random.ranf)
+    # Verificar
+    hp_svr.add_axis(hp_svr, 'epsilon', 'r', 5.0, 50.0, np.random.ranf)
+    hp_svr.add_axis(hp_svr, 'max_iter', 'c', None, None, [1e+6])
+    hp_svr.print(data=True)
+
+    return hp_svr
+
+
 def get_search_space(algorithm):
     if algorithm == 'rf':
         return rf_space()
@@ -149,6 +183,10 @@ def get_search_space(algorithm):
         return dt_space()
     elif algorithm == 'mlp':
         return mlp_space()
+    elif algorithm == 'knn':
+        return knn_space()
+    elif algorithm == 'svr':
+        return svr_space()
     else:
         print('Invalid regression technique.')
         return None
@@ -174,7 +212,8 @@ def objective(**kwargs):
         errors.append(error)
 
     with open('{0}/{1}_{2}_.rcfg'.format(
-        output_folder,model_name, str(datetime.datetime.now())), 'wb') as file:
+        output_folder, model_name, str(datetime.datetime.now())), 'wb') as \
+            file:
         out_data = {
             'reg_conf': kwargs,
             'errors': errors
@@ -201,7 +240,7 @@ def main(parameters):
     X, y = data.iloc[:, :-1].values, data.iloc[:, -1].values
 
     rs = RandomSearch(get_search_space(algorithm=regressor),
-                      max_iter=max_iter, n_jobs=6)
+                      max_iter=max_iter, n_jobs=50)
     best_conf = rs.fmin(
         objective=objective,
         predictor=get_regressor(algorithm=regressor),

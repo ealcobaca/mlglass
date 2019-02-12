@@ -2,6 +2,9 @@
 *.zip
 *.csv
 *env3.5/
+*.xml
+_linux/
+*.rcfg
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
