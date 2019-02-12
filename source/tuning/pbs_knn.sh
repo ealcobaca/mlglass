@@ -1,4 +1,4 @@
-#PBS -N DT
+#PBS -N k-NN
 #PBS -l select=1:ncpus=56:nodetype=n56
 #PBS -l walltime=336:00:00
 

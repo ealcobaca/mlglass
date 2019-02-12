@@ -11,7 +11,8 @@ from sklearn.neural_network import MLPRegressor
 from paje.opt.hp_space import HPSpace
 from paje.opt.random_search import RandomSearch
 from sklearn.model_selection import KFold
-
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.svm import SVR
 
 # def id_generator():
 #     id = 0
@@ -58,6 +59,10 @@ def get_regressor(algorithm):
         return DecisionTreeRegressor
     elif algorithm == 'mlp':
         return MLPRegressor
+    elif algorithm =='knn':
+        return KNeighborsRegressor
+    elif algorithm == 'svr':
+        return SVR
     else:
         print('Invalid regression technique.')
         return None
@@ -71,10 +76,10 @@ def catboost_space():
                          np.random.ranf)
     hp_catboost.add_axis(hp_catboost, 'learning_rate', 'r', 0.01, 0.4,
                          np.random.ranf)
-    hp_catboost.add_axis(hp_catboost, 'depth', 'z', 6, 10, np.random.ranf)
+    hp_catboost.add_axis(hp_catboost, 'depth', 'z', 1, 16, np.random.ranf)
     hp_catboost.add_axis(hp_catboost, 'l2_leaf_reg', 'z', 3, 7,
                          np.random.ranf)
-    hp_catboost.add_axis(hp_catboost, 'random_strength', 'r', 0.3, 1,
+    hp_catboost.add_axis(hp_catboost, 'random_strength', 'r', 0.0, 1,
                          np.random.ranf)
     hp_catboost.add_axis(hp_catboost, 'bagging_temperature', 'r', 0.5, 1.5,
                          np.random.ranf)
@@ -92,10 +97,10 @@ def catboost_space():
 def dt_space():
     hp_dt = HPSpace(name='DT')
     # Verificar a possibilidade de permitir qualquer profundidade: None
-    hp_dt.add_axis(hp_dt, 'max_depth', 'z', 4, 15, np.random.ranf)
-    hp_dt.add_axis(hp_dt, 'min_samples_split', 'r', 0.0002, 0.01,
+    hp_dt.add_axis(hp_dt, 'max_depth', 'z', 1, 65, np.random.ranf)
+    hp_dt.add_axis(hp_dt, 'min_samples_split', 'r', 2, 500,
                    np.random.ranf)
-    hp_dt.add_axis(hp_dt, 'min_samples_leaf', 'r', 0.0001, 0.01,
+    hp_dt.add_axis(hp_dt, 'min_samples_leaf', 'r', 1, 250,
                    np.random.ranf)
     hp_dt.print(data=True)
 
@@ -105,12 +110,13 @@ def dt_space():
 def rf_space():
     hp_rf = HPSpace(name='RF')
     hp_rf.add_axis(hp_rf, 'n_estimators', 'z', 100, 1000, np.random.ranf)
-    hp_rf.add_axis(hp_rf, 'max_depth', 'z', 4, 15, np.random.ranf)
-    hp_rf.add_axis(hp_rf, 'min_samples_split', 'r', 0.0002, 0.01,
+    # Tamanho maximo como o numero de features do problema
+    hp_rf.add_axis(hp_rf, 'max_depth', 'z', 1, 65, np.random.ranf)
+    hp_rf.add_axis(hp_rf, 'min_samples_split', 'z', 2, 500,
                    np.random.ranf)
-    hp_rf.add_axis(hp_rf, 'min_samples_leaf', 'r', 0.0001, 0.01,
+    hp_rf.add_axis(hp_rf, 'min_samples_leaf', 'z', 1, 250,
                    np.random.ranf)
-    hp_rf.add_axis(hp_rf, 'max_features', 'z', 3, 15, np.random.ranf)
+    hp_rf.add_axis(hp_rf, 'max_features', 'z', 2, 65, np.random.ranf)
     hp_rf.print(data=True)
 
     return hp_rf
@@ -235,7 +241,7 @@ def main(parameters):
     X, y = data.iloc[:, :-1].values, data.iloc[:, -1].values
 
     rs = RandomSearch(get_search_space(algorithm=regressor),
-                      max_iter=max_iter, n_jobs=6)
+                      max_iter=max_iter, n_jobs=50)
     best_conf = rs.fmin(
         objective=objective,
         predictor=get_regressor(algorithm=regressor),
