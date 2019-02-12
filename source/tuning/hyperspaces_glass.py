@@ -11,7 +11,8 @@ from sklearn.neural_network import MLPRegressor
 from paje.opt.hp_space import HPSpace
 from paje.opt.random_search import RandomSearch
 from sklearn.model_selection import KFold
-
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.svm import SVR
 
 # def id_generator():
 #     id = 0
@@ -58,6 +59,10 @@ def get_regressor(algorithm):
         return DecisionTreeRegressor
     elif algorithm == 'mlp':
         return MLPRegressor
+    elif algorithm =='knn':
+        return KNeighborsRegressor
+    elif algorithm == 'svr':
+        return SVR
     else:
         print('Invalid regression technique.')
         return None
@@ -235,7 +240,7 @@ def main(parameters):
     X, y = data.iloc[:, :-1].values, data.iloc[:, -1].values
 
     rs = RandomSearch(get_search_space(algorithm=regressor),
-                      max_iter=max_iter, n_jobs=6)
+                      max_iter=max_iter, n_jobs=50)
     best_conf = rs.fmin(
         objective=objective,
         predictor=get_regressor(algorithm=regressor),
