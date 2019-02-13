@@ -1,6 +1,6 @@
 #PBS -N DT
 #PBS -l select=1:ncpus=56:nodetype=n56
-#PBS -l walltime=336:00:00
+#PBS -l walltime=23:00:00
 
 module load python/3.5.4
 

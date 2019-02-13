@@ -111,10 +111,10 @@ def rf_space():
     hp_rf = HPSpace(name='RF')
     hp_rf.add_axis(hp_rf, 'n_estimators', 'z', 100, 1000, np.random.ranf)
     # Tamanho maximo como o numero de features do problema
-    hp_rf.add_axis(hp_rf, 'max_depth', 'z', 1, 65, np.random.ranf)
-    hp_rf.add_axis(hp_rf, 'min_samples_split', 'z', 2, 500,
+    hp_rf.add_axis(hp_rf, 'max_depth', 'c', None, None, [None, 10, 20, 30, 40, 60, 70, 80, 90, 100])
+    hp_rf.add_axis(hp_rf, 'min_samples_split', 'z', 2, 200,
                    np.random.ranf)
-    hp_rf.add_axis(hp_rf, 'min_samples_leaf', 'z', 1, 250,
+    hp_rf.add_axis(hp_rf, 'min_samples_leaf', 'z', 1, 100,
                    np.random.ranf)
     hp_rf.add_axis(hp_rf, 'max_features', 'z', 2, 65, np.random.ranf)
     hp_rf.print(data=True)
@@ -241,7 +241,7 @@ def main(parameters):
     X, y = data.iloc[:, :-1].values, data.iloc[:, -1].values
 
     rs = RandomSearch(get_search_space(algorithm=regressor),
-                      max_iter=max_iter, n_jobs=50)
+                      max_iter=max_iter, n_jobs=10)
     best_conf = rs.fmin(
         objective=objective,
         predictor=get_regressor(algorithm=regressor),
