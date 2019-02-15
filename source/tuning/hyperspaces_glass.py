@@ -70,18 +70,18 @@ def get_regressor(algorithm):
 
 def catboost_space():
     hp_catboost = HPSpace(name='Catboost')
-    hp_catboost.add_axis(hp_catboost, 'one_hot_max_size', 'z', 2, 5,
-                         np.random.ranf)
+    hp_catboost.add_axis(hp_catboost, 'one_hot_max_size', 'c', None, None,
+                         [1])
     hp_catboost.add_axis(hp_catboost, 'iterations', 'z', 100, 1000,
                          np.random.ranf)
     hp_catboost.add_axis(hp_catboost, 'learning_rate', 'r', 0.01, 0.4,
                          np.random.ranf)
     hp_catboost.add_axis(hp_catboost, 'depth', 'z', 1, 16, np.random.ranf)
-    hp_catboost.add_axis(hp_catboost, 'l2_leaf_reg', 'z', 3, 7,
+    hp_catboost.add_axis(hp_catboost, 'l2_leaf_reg', 'r', 0, 7,
                          np.random.ranf)
     hp_catboost.add_axis(hp_catboost, 'random_strength', 'r', 0.0, 1,
                          np.random.ranf)
-    hp_catboost.add_axis(hp_catboost, 'bagging_temperature', 'r', 0.5, 1.5,
+    hp_catboost.add_axis(hp_catboost, 'bagging_temperature', 'r', 0.0, 1.5,
                          np.random.ranf)
     hp_catboost.add_axis(hp_catboost, 'border_count', 'z', 128, 254,
                          np.random.ranf)
