@@ -4,31 +4,119 @@
 
 module load python/3.5.4
 
-cd predicting_high_low_TG/
+cd /lustre/alcobaca/predicting_high_low_TG/
 source env3.5/bin/activate
 
 cd source/
 
 # uncomment to run
-# make run_tuning_rf input_file=../../data/clean/oxides_ND300_train.csv \ 
+# 5 expriment
+# make run_tuning_cat input_file=../../data/clean/oxides_ND300_train.csv \ 
 # 	output_folder=../../result/ \
-# 	max_iter=500 \
-# 	seed=500 \
-# 	n_jobs=50 \
+# 	max_iter=100 \
+# 	seed=100 \
+# 	n_jobs=20 \
 # 	data_tag=nd300 \ 
 #
-# make run_tuning_rf input_file=../../data/clean/oxides_Tliquidus_train.csv \ 
+# make run_tuning_cat input_file=../../data/clean/oxides_ND300_train.csv \ 
 # 	output_folder=../../result/ \
-# 	max_iter=500 \
+# 	max_iter=100 \
+# 	seed=200 \
+# 	n_jobs=20 \
+# 	data_tag=nd300 \ 
+#
+# make run_tuning_cat input_file=../../data/clean/oxides_ND300_train.csv \ 
+# 	output_folder=../../result/ \
+# 	max_iter=100 \
+# 	seed=300 \
+# 	n_jobs=20 \
+# 	data_tag=nd300 \ 
+#
+# make run_tuning_cat input_file=../../data/clean/oxides_ND300_train.csv \ 
+# 	output_folder=../../result/ \
+# 	max_iter=100 \
+# 	seed=400 \
+# 	n_jobs=20 \
+# 	data_tag=nd300 \ 
+#
+# make run_tuning_cat input_file=../../data/clean/oxides_ND300_train.csv \ 
+# 	output_folder=../../result/ \
+# 	max_iter=100 \
+# 	seed=500 \
+# 	n_jobs=20 \
+# 	data_tag=nd300 \ 
+##########################################################################
+
+# 5 expriment
+# make run_tuning_cat input_file=../../data/clean/oxides_Tliquidus_train.csv \ 
+# 	output_folder=../../result/ \
+# 	max_iter=100 \
+# 	seed=100 \
+# 	n_jobs=20 \
+# 	data_tag=tl \ 
+#
+# make run_tuning_cat input_file=../../data/clean/oxides_Tliquidus_train.csv \ 
+# 	output_folder=../../result/ \
+# 	max_iter=100 \
+# 	seed=200 \
+# 	n_jobs=20 \
+# 	data_tag=tl \ 
+#
+# make run_tuning_cat input_file=../../data/clean/oxides_Tliquidus_train.csv \ 
+# 	output_folder=../../result/ \
+# 	max_iter=100 \
+# 	seed=300 \
+# 	n_jobs=20 \
+# 	data_tag=tl \ 
+#
+# make run_tuning_cat input_file=../../data/clean/oxides_Tliquidus_train.csv \ 
+# 	output_folder=../../result/ \
+# 	max_iter=100 \
+# 	seed=400 \
+# 	n_jobs=20 \
+# 	data_tag=tl \ 
+#
+# make run_tuning_cat input_file=../../data/clean/oxides_Tliquidus_train.csv \ 
+# 	output_folder=../../result/ \
+# 	max_iter=100 \
 # 	seed=500 \
 # 	n_jobs=50 \
 # 	data_tag=tl \ 
-#
-# make run_tuning_rf input_file=../../data/clean/oxides_Tg_train.csv \ 
+##########################################################################
+
+# 5 expriment
+# make run_tuning_cat input_file=../../data/clean/oxides_Tg_train.csv \ 
 # 	output_folder=../../result/ \
-# 	max_iter=500 \
-# 	seed=500 \
-# 	n_jobs=50 \
+# 	max_iter=100 \
+# 	seed=100 \
+# 	n_jobs=20 \
 # 	data_tag=tg \ 
-
-
+#
+# make run_tuning_cat input_file=../../data/clean/oxides_Tg_train.csv \ 
+# 	output_folder=../../result/ \
+# 	max_iter=100 \
+# 	seed=200 \
+# 	n_jobs=20 \
+# 	data_tag=tg \ 
+#
+# make run_tuning_cat input_file=../../data/clean/oxides_Tg_train.csv \ 
+# 	output_folder=../../result/ \
+# 	max_iter=100 \
+# 	seed=300 \
+# 	n_jobs=20 \
+# 	data_tag=tg \ 
+#
+# make run_tuning_cat input_file=../../data/clean/oxides_Tg_train.csv \ 
+# 	output_folder=../../result/ \
+# 	max_iter=100 \
+# 	seed=400 \
+# 	n_jobs=20 \
+# 	data_tag=tg \ 
+#
+# make run_tuning_cat input_file=../../data/clean/oxides_Tg_train.csv \ 
+# 	output_folder=../../result/ \
+# 	max_iter=100 \
+# 	seed=500 \
+# 	n_jobs=20 \
+# 	data_tag=tg \ 
+##########################################################################

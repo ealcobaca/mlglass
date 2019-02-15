@@ -4,7 +4,7 @@
 
 module load python/3.5.4
 
-cd predicting_high_low_TG/
+cd /lustre/alcobaca/predicting_high_low_TG/
 source env3.5/bin/activate
 
 cd source/
