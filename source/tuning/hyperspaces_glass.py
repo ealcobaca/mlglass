@@ -14,12 +14,6 @@ from sklearn.model_selection import KFold
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.svm import SVR
 
-# def id_generator():
-#     id = 0
-#     while True:
-#         yield id
-#         id += 1
-#
 
 def mlp_archictecture_builder():
     hidd1_min = 10
@@ -98,9 +92,9 @@ def dt_space():
     hp_dt = HPSpace(name='DT')
     # Verificar a possibilidade de permitir qualquer profundidade: None
     hp_dt.add_axis(hp_dt, 'max_depth', 'z', 1, 65, np.random.ranf)
-    hp_dt.add_axis(hp_dt, 'min_samples_split', 'r', 2, 500,
+    hp_dt.add_axis(hp_dt, 'min_samples_split', 'z', 2, 500,
                    np.random.ranf)
-    hp_dt.add_axis(hp_dt, 'min_samples_leaf', 'r', 1, 250,
+    hp_dt.add_axis(hp_dt, 'min_samples_leaf', 'z', 1, 250,
                    np.random.ranf)
     hp_dt.print(data=True)
 
@@ -111,7 +105,8 @@ def rf_space():
     hp_rf = HPSpace(name='RF')
     hp_rf.add_axis(hp_rf, 'n_estimators', 'z', 100, 1000, np.random.ranf)
     # Tamanho maximo como o numero de features do problema
-    hp_rf.add_axis(hp_rf, 'max_depth', 'c', None, None, [None, 10, 20, 30, 40, 60, 70, 80, 90, 100])
+    hp_rf.add_axis(hp_rf, 'max_depth', 'c', None, None,
+                   [None, 10, 20, 30, 40, 60, 70, 80, 90, 100])
     hp_rf.add_axis(hp_rf, 'min_samples_split', 'z', 2, 200,
                    np.random.ranf)
     hp_rf.add_axis(hp_rf, 'min_samples_leaf', 'z', 1, 100,
@@ -201,6 +196,7 @@ def objective(**kwargs):
     seed = kwargs.pop('seed')
     model_name = kwargs.pop('model_name')
     output_folder = kwargs.pop('output_folder')
+    data_tag = kwargs.pop('data_tag')
 
     kf = KFold(n_splits=10, random_state=seed, shuffle=True)
     errors = []
@@ -212,8 +208,9 @@ def objective(**kwargs):
         error = loss_func(y_test, regressor.predict(X_test))
         errors.append(error)
 
-    with open('{0}/{1}_{2}_.rcfg'.format(
-        output_folder, model_name, str(datetime.datetime.now())), 'wb') as \
+    with open('{0}/{1}_{2}_{3}_.rcfg'.format(
+            output_folder, model_name,
+            str(datetime.datetime.now()), data_tag), 'wb') as \
             file:
         out_data = {
             'reg_conf': kwargs,
@@ -224,24 +221,26 @@ def objective(**kwargs):
 
 
 def main(parameters):
-    if (len(parameters) - 1) != 5:
+    if (len(parameters) - 1) != 7:
         print("Missing required parameters: (regressor, input_file, \
               output_folder, max_iter, seed)")
     regressor = parameters[1]
     input_file = parameters[2]
     output_folder = parameters[3]
-
-    if not os.path.exists(output_folder):
-        os.makedirs(output_folder)
-
     max_iter = int(parameters[4])
     seed = int(parameters[5])
+    n_jobs = int(parameters[6])
+    data_tag = parameters[7]
+
+    output_folder = os.path.join(output_folder, regressor, data_tag, str(seed))
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
 
     data = pd.read_csv(input_file)
     X, y = data.iloc[:, :-1].values, data.iloc[:, -1].values
 
     rs = RandomSearch(get_search_space(algorithm=regressor),
-                      max_iter=max_iter, n_jobs=10)
+                      max_iter=max_iter, n_jobs=n_jobs)
     best_conf = rs.fmin(
         objective=objective,
         predictor=get_regressor(algorithm=regressor),
@@ -251,13 +250,27 @@ def main(parameters):
         seed=seed,
         # id_gen=id_generator(),
         model_name=regressor,
-        output_folder=output_folder
+        output_folder=output_folder,
+        data_tag=data_tag
     )
 
-    with open('{0}/best_configuration_{1}.rcfg'.format(output_folder,
-              regressor), 'wb') as file:
+    with open('{0}/best_configuration_{1}_{2}_.rcfg'.format(output_folder,
+              regressor, data_tag), 'wb') as file:
         pickle.dump(file=file, obj=best_conf, protocol=-1)
-    print(best_conf)
+
+    output_folder = os.path.join(output_folder, 'log')
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+
+    with open('{0}/log_{1}_.txt'.format(output_folder,
+                                            data_tag), 'w') as file:
+        file.write("regressor = {0}\n".format(regressor))
+        file.write("input_file = {0}\n".format(input_file))
+        file.write("output_folder = {0}\n".format(output_folder))
+        file.write("max_iter = {0}\n".format(max_iter))
+        file.write("seed = {0}\n".format(seed))
+        file.write("n_jobs = {0}\n".format(n_jobs))
+        file.write("data_tag = {0}\n".format(data_tag))
 
 
 if __name__ == '__main__':
