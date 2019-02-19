@@ -66,6 +66,8 @@ def catboost_space():
     hp_catboost = HPSpace(name='Catboost')
     hp_catboost.add_axis(hp_catboost, 'one_hot_max_size', 'c', None, None,
                          [1])
+    hp_catboost.add_axis(hp_catboost, 'thread_count', 'c', None, None,
+                         [1])
     hp_catboost.add_axis(hp_catboost, 'iterations', 'z', 100, 1000,
                          np.random.ranf)
     hp_catboost.add_axis(hp_catboost, 'learning_rate', 'r', 0.01, 0.4,
