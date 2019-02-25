@@ -28,7 +28,7 @@ def get_best_conf(data_path, folder_prefix, tuning_prefix, file_name):
 
 if __name__ == '__main__':
     data_path = '../../result/{0}/result_{0}.zip'.format(regressor)
-    folder_prefix = 'result/{0}/{1}'.format(regressor, target)
+    folder_prefix = '{0}/{1}'.format(regressor, target)
     file_name = 'best_configuration_{0}_{1}_.rcfg'.format(regressor, target)
     best_error, best_conf = get_best_conf(data_path, folder_prefix,
                                           tuning_prefix, file_name)
