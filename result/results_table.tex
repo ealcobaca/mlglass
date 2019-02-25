@@ -1,0 +1,15 @@
+\begin{table}[!htbp]
+	\setlength{\tabcolsep}{3pt}
+	\begin{tabular}{cccccccccccccccc}
+		\toprule
+		\multirow{2}{*}{Metric} & & \multicolumn{2}{c}{DT} & & \multicolumn{2}{c}{k-NN} & & \multicolumn{2}{c}{MLP} & & \multicolumn{2}{c}{SVR} & & \multicolumn{2}{c}{RF}\\
+		 \cline{3-4} \cline{6-7} \cline{9-10} \cline{12-13} \cline{15-16}
+		  & & Default & Tuning & & Default & Tuning & & Default & Tuning & & Default & Tuning & & Default & Tuning\\
+		\midrule
+		RD & & 0.0307 & 0.0369 & & 0.0273 & 0.0251 & & 0.0570 & 0.0303 & & 0.1623 & 0.0491 & & 0.0245 & 0.0299\\
+		$R^2$ & & 0.9240 & 0.9156 & & 0.9502 & 0.9540 & & 0.8521 & 0.9480 & & 0.4202 & 0.8795 & & 0.9562 & 0.9446\\
+		RMSE & & 42.4787 & 44.4671 & & 34.1302 & 32.8061 & & 58.8052 & 34.8825 & & 149.1537 & 53.0642 & & 31.9663 & 36.0472\\
+		RRMSE & & 0.2782 & 0.2912 & & 0.2235 & 0.2149 & & 0.3851 & 0.2285 & & 0.9769 & 0.3475 & & 0.2094 & 0.2361\\
+		\bottomrule
+	\end{tabular}
+\end{table}
