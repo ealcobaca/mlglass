@@ -8,15 +8,19 @@ from sklearn.neural_network import MLPRegressor
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.svm import SVR
 
-input_file = '../../data/clean/oxides_Tg_train.csv'
 output_path = '../../result'
-target = 'tg'
 regressors = {
     'dt': (DecisionTreeRegressor, {}),
     'knn': (KNeighborsRegressor, {}),
     'mlp': (MLPRegressor, {}),
     'rf': (RandomForestRegressor, {'n_estimators': 100, 'n_jobs': 8}),
     'svr': (SVR, {'gamma': 'auto'})
+}
+
+targets = {
+    'tg': 'Tg',
+    'nd300': 'ND300',
+    'tl': 'Tliquidus'
 }
 
 
@@ -49,10 +53,14 @@ def train_best_models(train_data, regressors, output_path, target):
 
 
 def main():
-    train_data = pd.read_csv(input_file)
-    train_data = train_data.values
-    train_default_models(train_data, regressors, output_path, target)
-    train_best_models(train_data, regressors, output_path, target)
+    for target, ftarget in targets.items():
+        print(ftarget)
+        input_file = '../../data/clean/oxides_{}_train.csv'.format(ftarget)
+
+        train_data = pd.read_csv(input_file)
+        train_data = train_data.values
+        train_default_models(train_data, regressors, output_path, target)
+        train_best_models(train_data, regressors, output_path, target)
 
 
 if __name__ == '__main__':

@@ -32,7 +32,7 @@ def evaluate_models(data_path, output_path, regressors, target, metrics,
         with open(
             os.path.join(
                 output_path, regressor,
-                '{}_{}_{}.model'.format(type, regressor, target.lower())
+                '{}_{}_{}.model'.format(type, regressor, target)
             ), 'rb'
         ) as f:
             regressor = pickle.load(f)
@@ -55,7 +55,7 @@ def get_predictions(data_path, output_path, regressors, target,
         with open(
             os.path.join(
                 output_path, regressor,
-                '{}_{}_{}.model'.format(type, regressor, target.lower())
+                '{}_{}_{}.model'.format(type, regressor, target)
             ), 'rb'
         ) as f:
             regressor = pickle.load(f)
@@ -77,10 +77,14 @@ def main(data_path, output_path, regressors, target, metrics):
     errors_best = evaluate_models(test_path, output_path, regressors,
                                   target, metrics, 'best')
     errors_standard.to_csv(
-        os.path.join(output_path, 'performance_standard_models.csv')
+        os.path.join(
+            output_path, 'performance_standard_models_{}.csv'.format(target)
+        )
     )
     errors_best.to_csv(
-        os.path.join(output_path, 'performance_best_models.csv')
+        os.path.join(
+            output_path, 'performance_best_models_{}.csv'.format(target)
+        )
     )
 
     pred_standard = get_predictions(test_path, output_path, regressors,
@@ -88,10 +92,14 @@ def main(data_path, output_path, regressors, target, metrics):
     pred_best = get_predictions(test_path, output_path, regressors,
                                 target, 'best')
     pred_standard.to_csv(
-        os.path.join(output_path, 'predictions_standard_models.csv')
+        os.path.join(
+            output_path, 'predictions_standard_models_{}.csv'.format(target)
+        )
     )
     pred_best.to_csv(
-        os.path.join(output_path, 'predictions_best_models.csv')
+        os.path.join(
+            output_path, 'predictions_best_models_{}.csv'.format(target)
+        )
     )
 
     ext_test_path = '{}_rem.csv'.format(data_path)
@@ -100,21 +108,34 @@ def main(data_path, output_path, regressors, target, metrics):
     pred_best = get_predictions(ext_test_path, output_path, regressors,
                                 target, 'best')
     pred_standard.to_csv(
-        os.path.join(output_path, 'predictions_extremes_standard_models.csv')
+        os.path.join(
+            output_path,
+            'predictions_extremes_standard_models_{}.csv'.format(target)
+        )
     )
     pred_best.to_csv(
-        os.path.join(output_path, 'predictions_extremes_best_models.csv')
+        os.path.join(
+            output_path,
+            'predictions_extremes_best_models_{}.csv'.format(target)
+        )
     )
 
 
-target = 'Tg'
+targets = {
+    'tg': 'Tg',
+    'nd300': 'ND300',
+    'tl': 'Tliquidus'
+}
+
 regressors = ['dt', 'knn', 'mlp', 'rf', 'svr']
 metrics = OrderedDict(
     {'relative_deviation': relative_deviation, 'R2': R2, 'RMSE': RMSE,
      'RRMSE': RRMSE}
 )
-data_path = '../../data/clean/oxides_{}_test'.format(target)
 output_path = '../../result'
 
+
 if __name__ == '__main__':
-    main(data_path, output_path, regressors, target, metrics)
+    for target, ftarget in targets.items():
+        data_path = '../../data/clean/oxides_{}_test'.format(ftarget)
+        main(data_path, output_path, regressors, target, metrics)
