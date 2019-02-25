@@ -39,7 +39,7 @@ cmap = 'gist_heat_r'
 
 
 def relative_deviation(obs, pred):
-    return np.abs(obs-pred)/obs
+    return np.abs(obs-pred)/obs * 100
 
 
 if not os.path.exists(output_folder):
@@ -69,18 +69,6 @@ for target, ftarget in targets.items():
             best.loc[:, reg],
             best.loc[:, '{}_pred'.format(reg)]
         )
-        min_color = np.min(
-            [np.min(colors_standard), np.min(colors_best)]
-        )
-        max_color = np.max(
-            [np.max(colors_standard), np.max(colors_best)]
-        )
-        colors_standard = np.array([
-            (c - min_color)/(max_color - min_color) for c in colors_standard
-        ])
-        colors_best = np.array([
-            (c - min_color)/(max_color - min_color) for c in colors_best
-        ])
 
         fig, axes = fig, ax = plt.subplots(nrows=1, ncols=2, sharex=True,
                                            sharey=True, figsize=(10, 5))
@@ -91,7 +79,7 @@ for target, ftarget in targets.items():
         y = standard.loc[:, '{}_pred'.format(reg)]
 
         plt.scatter(x[order], y[order], s=3, c=colors_standard[order],
-                    cmap=cmap, vmin=0, vmax=1)
+                    cmap=cmap, vmin=0, vmax=100)
         plt.plot([x_min, x_max], [x_min, x_max], c='black')
         plt.xlabel(None)
         plt.ylabel(None)
@@ -116,7 +104,7 @@ for target, ftarget in targets.items():
         y = best.loc[:, '{}_pred'.format(reg)]
 
         aux_cb = plt.scatter(x[order], y[order], s=3, c=colors_best[order],
-                             cmap=cmap, vmin=0, vmax=1)
+                             cmap=cmap, vmin=0, vmax=100)
         plt.plot([x_min, x_max], [x_min, x_max], c='black')
         plt.xlabel(None)
         plt.ylabel(None)
@@ -143,7 +131,9 @@ for target, ftarget in targets.items():
 
         fig.subplots_adjust(right=0.9)
         cbar_ax = fig.add_axes([0.91, 0.27, 0.01, 0.4])
-        cbar = fig.colorbar(aux_cb, cax=cbar_ax)
+        cbar = fig.colorbar(aux_cb, cax=cbar_ax, ticks=np.arange(0, 110, 20))
+        cbar.ax.set_yticklabels(['{}%'.format(tick) for tick in
+                                 np.arange(0, 110, 20)])
         cbar.ax.tick_params(labelsize=6)
         cbar.ax.set_title('RD', fontsize=8)
 

@@ -6,7 +6,7 @@ from collections import OrderedDict
 
 
 def relative_deviation(obs, pred):
-    return np.sum(np.abs(obs-pred)/obs)/len(obs)
+    return np.sum(np.abs(obs-pred)/obs)/len(obs) * 100
 
 
 def R2(target, pred):
