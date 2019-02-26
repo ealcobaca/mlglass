@@ -28,12 +28,15 @@ for target, ftarget in targets.items():
 
     ordered_feat = [col_names[i] for i in indices]
     # Plot the feature importances of the forest
-    plt.figure(figsize=(10, 5))
-    plt.title("Feature importances")
+    plt.figure(figsize=(10, 4))
+    plt.style.use('seaborn-whitegrid')
+    plt.title("Feature importances", fontsize=12)
     plt.bar(range(len(importances)), importances[indices],
-            color='b', yerr=std[indices], align='center')
-    plt.xticks(range(len(importances)), ordered_feat, rotation=90)
+            color='darkgreen', yerr=std[indices], align='center', log=True,
+            capsize=1.5)
+    plt.xticks(range(len(importances)), ordered_feat, rotation=90, fontsize=8)
     plt.xlim([-1, len(importances)])
+    plt.ylabel('log(Importance)', fontsize=10)
     plt.tight_layout()
-    plt.savefig(os.path.join(output_path, 'importance_{}.png'.format(target)),
+    plt.savefig(os.path.join(output_path, 'importance_{}.eps'.format(target)),
                 dpi=500)
