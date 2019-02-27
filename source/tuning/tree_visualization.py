@@ -38,7 +38,7 @@ def path2latex_formula(estimator, features, sample):
                 features[feature[node_id]], threshold_sign, threshold[node_id]
             )
         )
-    rule = ' $\\&$ '.join(decisions)
+    rule = ' $\\wedge$ '.join(decisions)
     return rule
 
 
@@ -51,9 +51,10 @@ def generate_path_table(estimator, data, target, output_path):
             os.path.join(output_path, 'path_table_{}.tex'.format(target)),
             'w'
          ) as f:
+        f.write('% Add to the document preamble: \\usepackage{array}\n')
         f.write('\\begin{table}[!htbp]\n')
         f.write('\t\\setlength{\\tabcolsep}{3pt}\n')
-        f.write('\t\\begin{tabular}{ccccp{0.7\\textwidth}}\n')
+        f.write('\t\\begin{tabular}{ccccm{0.7\\textwidth}}\n')
         f.write('\t\t\\toprule\n')
         f.write('\t\tid & $T_g$ & $\\hat{T_g}$ & RD (\\%) & Tree branch\\\\\n')
         f.write('\t\t\\midrule\n')
