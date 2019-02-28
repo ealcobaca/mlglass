@@ -2,10 +2,30 @@ import os
 import pickle
 import numpy as np
 import pandas as pd
+from collections import OrderedDict
 
 
 def relative_deviation(obs, pred):
     return np.abs(obs-pred)/obs * 100
+
+
+def simplify_rules(tests):
+    hash = OrderedDict()
+    for test in tests:
+        aux = test.split(' ')
+        if not (aux[0], aux[1]) in hash:
+            hash[(aux[0], aux[1])] = [float(aux[2])]
+        else:
+            hash[(aux[0], aux[1])].append(float(aux[2]))
+    rule_set = []
+    for (elem, signal), values in hash.items():
+        if signal == '$>$':
+            value = np.max(values)
+        else:
+            value = np.min(values)
+        rule = '{0} {1} {2:.3f}'.format(elem, signal, value)
+        rule_set.append(rule)
+    return rule_set
 
 
 def path2latex_formula(estimator, features, sample):
@@ -34,10 +54,11 @@ def path2latex_formula(estimator, features, sample):
             threshold_sign = '$>$'
 
         decisions.append(
-            '\\textit{{{0}}} {1} {2:.3f}'.format(
+            '\\textit{{{0}}} {1} {2}'.format(
                 features[feature[node_id]], threshold_sign, threshold[node_id]
             )
         )
+    decisions = simplify_rules(decisions)
     rule = ' $\\wedge$ '.join(decisions)
     return rule
 
