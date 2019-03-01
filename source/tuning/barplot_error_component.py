@@ -32,7 +32,7 @@ def main(targets, regressors, output_path):
         for j, elem in enumerate(elements):
             n_examples.append(len(np.nonzero(data[:, j])[0]))
 
-        plt.figure(figsize=(10, 3.5))
+        plt.figure(figsize=(10, 3))
         plt.style.use('seaborn-whitegrid')
         plt.title("Error per element", fontsize=12)
         bar_heights = OrderedDict()
