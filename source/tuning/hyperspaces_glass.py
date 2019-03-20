@@ -8,8 +8,8 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.tree import DecisionTreeRegressor
 from catboost import CatBoostRegressor
 from sklearn.neural_network import MLPRegressor
-from paje.opt.hp_space import HPSpace
-from paje.opt.random_search import RandomSearch
+from hp_space import HPSpace
+from random_search import RandomSearch
 from sklearn.model_selection import KFold
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.svm import SVR
@@ -199,8 +199,17 @@ def objective(**kwargs):
     model_name = kwargs.pop('model_name')
     output_folder = kwargs.pop('output_folder')
     data_tag = kwargs.pop('data_tag')
+    id_tuning = kwargs.pop('id_tuning')
 
-    kf = KFold(n_splits=10, random_state=seed, shuffle=True)
+    file_name = '{0}/{1}_{2}_{3}_.rcfg'.format(output_folder, model_name,
+                                               id_tuning, data_tag)
+
+    if os.path.isfile(file_name):
+        with open(file_name, "rb") as file:
+            out_data = pickle.load(file)
+            return np.median(out_data["errors"])
+
+    kf = KFold(n_splits=5, random_state=seed, shuffle=True)
     errors = []
     for train_index, test_index in kf.split(X):
         X_train, y_train = X[train_index], y[train_index]
@@ -210,10 +219,7 @@ def objective(**kwargs):
         error = loss_func(y_test, regressor.predict(X_test))
         errors.append(error)
 
-    with open('{0}/{1}_{2}_{3}_.rcfg'.format(
-            output_folder, model_name,
-            str(datetime.datetime.now()), data_tag), 'wb') as \
-            file:
+    with open(file_name, 'wb') as file:
         out_data = {
             'reg_conf': kwargs,
             'errors': errors
@@ -230,49 +236,64 @@ def main(parameters):
     input_file = parameters[2]
     output_folder = parameters[3]
     max_iter = int(parameters[4])
-    seed = int(parameters[5])
+    inner_seed = int(parameters[5])
     n_jobs = int(parameters[6])
     data_tag = parameters[7]
+    outer_seed = int(parameters[8])
+    tuning_seed = int(parameters[9])
+    outer_fold = int(parameters[10])
 
-    output_folder = os.path.join(output_folder, regressor, data_tag, str(seed))
+    output_folder = os.path.join(output_folder, regressor, data_tag,
+                                 "outer_fold"+str(outer_fold))
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
     data = pd.read_csv(input_file)
     X, y = data.iloc[:, :-1].values, data.iloc[:, -1].values
 
+
+    kf = KFold(n_splits=10, random_state=outer_seed, shuffle=True)
+
+    for k, (train_index, test_index) in enumerate(kf.split(X)):
+        if k+1 == outer_fold:
+            X_train, y_train = X[train_index], y[train_index]
+            # X_test, y_test = X[test_index], y[test_index]
+            break
+
     rs = RandomSearch(get_search_space(algorithm=regressor),
-                      max_iter=max_iter, n_jobs=n_jobs)
-    best_conf = rs.fmin(
+                      max_iter=max_iter, n_jobs=n_jobs,
+                      random_state=tuning_seed)
+
+    # best_conf = 
+    rs.fmin(
         objective=objective,
         predictor=get_regressor(algorithm=regressor),
         loss_func_tuning=RRMSE,
-        X=X,
-        y=y,
-        seed=seed,
-        # id_gen=id_generator(),
+        X=X_train,
+        y=y_train,
+        seed=inner_seed,
         model_name=regressor,
         output_folder=output_folder,
         data_tag=data_tag
     )
 
-    with open('{0}/best_configuration_{1}_{2}_.rcfg'.format(output_folder,
-              regressor, data_tag), 'wb') as file:
-        pickle.dump(file=file, obj=best_conf, protocol=-1)
-
-    output_folder = os.path.join(output_folder, 'log')
-    if not os.path.exists(output_folder):
-        os.makedirs(output_folder)
-
-    with open('{0}/log_{1}_.txt'.format(output_folder,
-                                            data_tag), 'w') as file:
-        file.write("regressor = {0}\n".format(regressor))
-        file.write("input_file = {0}\n".format(input_file))
-        file.write("output_folder = {0}\n".format(output_folder))
-        file.write("max_iter = {0}\n".format(max_iter))
-        file.write("seed = {0}\n".format(seed))
-        file.write("n_jobs = {0}\n".format(n_jobs))
-        file.write("data_tag = {0}\n".format(data_tag))
+    # with open('{0}/best_configuration_{1}_{2}_.rcfg'.format(output_folder,
+    #           regressor, data_tag), 'wb') as file:
+    #     pickle.dump(file=file, obj=best_conf, protocol=-1)
+    #
+    # output_folder = os.path.join(output_folder, 'log')
+    # if not os.path.exists(output_folder):
+    #     os.makedirs(output_folder)
+    #
+    # with open('{0}/log_{1}_.txt'.format(output_folder,
+    #                                         data_tag), 'w') as file:
+    #     file.write("regressor = {0}\n".format(regressor))
+    #     file.write("input_file = {0}\n".format(input_file))
+    #     file.write("output_folder = {0}\n".format(output_folder))
+    #     file.write("max_iter = {0}\n".format(max_iter))
+    #     file.write("seed = {0}\n".format(seed))
+    #     file.write("n_jobs = {0}\n".format(n_jobs))
+    #     file.write("data_tag = {0}\n".format(data_tag))
 
 
 if __name__ == '__main__':
