@@ -1,4 +1,4 @@
-input_file := ../../data/clean/oxides_Tg_train.csv
+input_file := ../../data/clean/data_tg_dupl_rem.csv
 output_folder := ../../result/
 max_iter := 500
 n_jobs := 5
