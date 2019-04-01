@@ -93,10 +93,9 @@ def catboost_space():
 def dt_space():
     hp_dt = HPSpace(name='DT')
     # Verificar a possibilidade de permitir qualquer profundidade: None
-    hp_dt.add_axis(hp_dt, 'max_depth', 'z', 1, 65, np.random.ranf)
-    hp_dt.add_axis(hp_dt, 'min_samples_split', 'z', 2, 500,
-                   np.random.ranf)
-    hp_dt.add_axis(hp_dt, 'min_samples_leaf', 'z', 1, 250,
+    hp_dt.add_axis(hp_dt, 'criterion', 'c', None, None,
+                   ['mse', 'friedman_mse'])
+    hp_dt.add_axis(hp_dt, 'min_impurity_decrease', 'r', 0, 0.1,
                    np.random.ranf)
     hp_dt.print(data=True)
 
@@ -105,15 +104,10 @@ def dt_space():
 
 def rf_space():
     hp_rf = HPSpace(name='RF')
-    hp_rf.add_axis(hp_rf, 'n_estimators', 'z', 100, 1000, np.random.ranf)
+    hp_rf.add_axis(hp_rf, 'n_estimators', 'z', 500, 1000, np.random.ranf)
     # Tamanho maximo como o numero de features do problema
-    hp_rf.add_axis(hp_rf, 'max_depth', 'c', None, None,
-                   [None, 10, 20, 30, 40, 60, 70, 80, 90, 100])
-    hp_rf.add_axis(hp_rf, 'min_samples_split', 'z', 2, 200,
-                   np.random.ranf)
-    hp_rf.add_axis(hp_rf, 'min_samples_leaf', 'z', 1, 100,
-                   np.random.ranf)
-    hp_rf.add_axis(hp_rf, 'max_features', 'z', 2, 65, np.random.ranf)
+    hp_rf.add_axis(hp_rf, 'max_features', 'c', None, None,
+                   ['auto', 'sqrt', 'log2'])
     hp_rf.print(data=True)
 
     return hp_rf
