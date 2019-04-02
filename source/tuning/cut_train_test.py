@@ -41,7 +41,6 @@ for k, (train_index, test_index) in enumerate(kf.split(X)):
     values.append(np.append(X_test[idx_min], y_test[idx_min]))
     df_test_extreme = pd.DataFrame(values, columns=columns)
     df_test_extreme.to_csv(
-        "../../data/clean/train_test_split/\
-        tg_test_fold{0:02d}_extreme.csv".format(count),
+        "../../data/clean/train_test_split/tg_test_fold{0:02d}_extreme.csv".format(count),
         index=False)
 
