@@ -3,6 +3,11 @@ import pandas as pd
 import pickle
 import os
 from collections import OrderedDict
+from constants import TARGETS_LIST as targets
+from constants import REGRESSORS_LIST as regressors
+from constants import OUTPUT_PATH as output_path
+from constants import SPLIT_DATA_PATH as data_path
+from constants import N_FOLDS_OUTER as n_folds
 
 
 def relative_deviation(obs, pred):
@@ -24,15 +29,17 @@ def RMSE(target, pred):
     return np.sqrt(np.sum((target-pred)**2)/N)
 
 
-def evaluate_models(data_path, output_path, regressors, target, metrics,
-                    type='default'):
+def evaluate_models(input_path, output_path, regressors, target, metrics,
+                    fold, type='default'):
     errors = np.zeros((len(metrics), len(regressors)))
-    test_data = pd.read_csv(data_path).values
+    test_data = pd.read_csv(input_path).values
     for j, regressor in enumerate(regressors):
         with open(
             os.path.join(
                 output_path, regressor,
-                '{}_{}_{}.model'.format(type, regressor, target)
+                '{0}_{1}_{2}_fold{3:02d}.model'.format(
+                    type, regressor, target, fold
+                )
             ), 'rb'
         ) as f:
             regressor = pickle.load(f)
@@ -47,15 +54,17 @@ def evaluate_models(data_path, output_path, regressors, target, metrics,
     return df
 
 
-def get_predictions(data_path, output_path, regressors, target,
+def get_predictions(input_path, output_path, regressors, target, fold,
                     type='default'):
-    test_data = pd.read_csv(data_path).values
+    test_data = pd.read_csv(input_path).values
     log = np.zeros((len(test_data), 2 * len(regressors)))
     for j, regressor in enumerate(regressors):
         with open(
             os.path.join(
                 output_path, regressor,
-                '{}_{}_{}.model'.format(type, regressor, target)
+                '{0}_{1}_{2}_fold{3:02d}.model'.format(
+                    type, regressor, target, fold
+                )
             ), 'rb'
         ) as f:
             regressor = pickle.load(f)
@@ -70,72 +79,131 @@ def get_predictions(data_path, output_path, regressors, target,
     return df
 
 
-def main(data_path, output_path, regressors, target, metrics):
-    test_path = '{}.csv'.format(data_path)
+def generate4fold(input_path, output_path, log_path, regressors, target,
+                  metrics, fold):
+    test_path = '{}.csv'.format(input_path)
     errors_standard = evaluate_models(test_path, output_path, regressors,
-                                      target, metrics)
+                                      target, metrics, fold)
     errors_best = evaluate_models(test_path, output_path, regressors,
-                                  target, metrics, 'best')
+                                  target, metrics, fold, 'best')
     errors_standard.to_csv(
         os.path.join(
-            output_path, 'performance_standard_models_{}.csv'.format(target)
+            log_path,
+            'performance_standard_models_{0}_fold{1:02d}.csv'.format(
+                target, fold
+            )
         )
     )
     errors_best.to_csv(
         os.path.join(
-            output_path, 'performance_best_models_{}.csv'.format(target)
+            log_path,
+            'performance_best_models_{0}_fold{1:02d}.csv'.format(
+                target, fold
+            )
         )
     )
 
     pred_standard = get_predictions(test_path, output_path, regressors,
-                                    target)
+                                    target, fold)
     pred_best = get_predictions(test_path, output_path, regressors,
-                                target, 'best')
+                                target, fold, 'best')
     pred_standard.to_csv(
         os.path.join(
-            output_path, 'predictions_standard_models_{}.csv'.format(target)
+            log_path,
+            'predictions_standard_models_{0}_fold{1:02d}.csv'.format(
+                target, fold
+            )
         )
     )
     pred_best.to_csv(
         os.path.join(
-            output_path, 'predictions_best_models_{}.csv'.format(target)
+            log_path,
+            'predictions_best_models_{0}_fold{1:02d}.csv'.format(
+                target, fold
+            )
         )
     )
 
-    ext_test_path = '{}_rem.csv'.format(data_path)
+    ext_test_path = '{0}_extreme.csv'.format(input_path)
     pred_standard = get_predictions(ext_test_path, output_path, regressors,
-                                    target)
+                                    target, fold)
     pred_best = get_predictions(ext_test_path, output_path, regressors,
-                                target, 'best')
+                                target, fold, 'best')
     pred_standard.to_csv(
         os.path.join(
-            output_path,
-            'predictions_extremes_standard_models_{}.csv'.format(target)
+            log_path,
+            'predictions_extremes_standard_models_{0}_fold{1:02d}.csv'.format(
+                target, fold
+            )
         )
     )
     pred_best.to_csv(
         os.path.join(
-            output_path,
-            'predictions_extremes_best_models_{}.csv'.format(target)
+            log_path,
+            'predictions_extremes_best_models_{0}_fold{1:02d}.csv'.format(
+                target, fold
+            )
         )
     )
 
 
-targets = {
-    'tg': 'Tg',
-    'nd300': 'ND300',
-    'tl': 'Tliquidus'
-}
+def merge_errors(target, output_path, log_path, type='standard'):
+    dfs = []
 
-regressors = ['dt', 'knn', 'mlp', 'rf', 'svr']
+    for k in range(1, n_folds + 1):
+        df = pd.read_csv(
+            os.path.join(
+                log_path,
+                'performance_{0}_models_{1}_fold{2:02d}.csv'.format(
+                    type, target, k
+                )
+            )
+        )
+        col_names = list(df)
+        col_names[0] = 'metric'
+        df.columns = col_names
+        df = df.set_index('metric')
+        df = df.assign(fold='fold{:02d}'.format(k))
+        dfs.append(df)
+
+    p = pd.concat(dfs)
+    means = p.groupby(['metric']).mean()
+    means.to_csv(
+        os.path.join(
+            output_path, 'mean_performance_{0}_{1}_all.csv'.format(
+                type, target
+            )
+        )
+    )
+    stds = p.groupby('metric').std()
+    stds.to_csv(
+        os.path.join(
+            output_path, 'std_performance_{0}_{1}_all.csv'.format(
+                type, target
+            )
+        )
+    )
+
+
 metrics = OrderedDict(
     {'relative_deviation': relative_deviation, 'R2': R2, 'RMSE': RMSE,
      'RRMSE': RRMSE}
 )
-output_path = '../../result'
 
 
 if __name__ == '__main__':
-    for target, ftarget in targets.items():
-        data_path = '../../data/clean/oxides_{}_test'.format(ftarget)
-        main(data_path, output_path, regressors, target, metrics)
+    log_path = '{0}/logs'.format(output_path)
+    if not os.path.exists(log_path):
+        os.makedirs(log_path)
+
+    for target in targets:
+        for k in range(1, n_folds + 1):
+            input_path = '{0}/{1}_test_fold{2:02d}'.format(
+                data_path, target, k
+            )
+            generate4fold(
+                input_path, output_path, log_path, regressors, target,
+                metrics, k
+            )
+        merge_errors(target, output_path, log_path)
+        merge_errors(target, output_path, log_path, 'best')
