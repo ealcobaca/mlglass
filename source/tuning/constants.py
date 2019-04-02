@@ -11,8 +11,7 @@ N_FOLDS_INNER = 5
 N_ITER_TUNING = 500
 
 # Regressors section
-# REGRESSORS_LIST = ['dt', 'knn', 'svr', 'mlp', 'rf']
-REGRESSORS_LIST = ['knn']
+REGRESSORS_LIST = ['dt', 'knn', 'svr', 'mlp', 'rf']
 REGRESSORS_DEFAULT = {
     'dt': (DecisionTreeRegressor, {}),
     'knn': (KNeighborsRegressor, {}),

@@ -11,12 +11,16 @@ from constants import SPLIT_DATA_PATH as data_path
 
 def train_default_models(train_data, regressors, output_path, target, fold):
     for id_reg, (reg, conf) in regressors.items():
+        model_name = os.path.join(
+            output_path, id_reg,
+            'default_{0}_{1}_fold{2:02d}.model'.format(id_reg, target, fold)
+        )
+        if os.path.exists(model_name):
+            continue
         model = reg(**conf)
         model.fit(train_data[:, :-1], train_data[:, -1])
         print('{} generated.'.format(id_reg))
-        with open(os.path.join(output_path, id_reg,
-                               'default_{0}_{1}_fold{2:02d}.model'.
-                               format(id_reg, target, fold)), 'wb') as f:
+        with open(model_name, 'wb') as f:
             pickle.dump(file=f, obj=model, protocol=-1)
 
 
@@ -32,12 +36,17 @@ def train_best_models(train_data, regressors, output_path, target, fold):
             'rb'
         ) as f:
             conf = pickle.load(f)
+        model_name = os.path.join(
+            output_path, id_reg,
+            'best_{0}_{1}_fold{2:02d}.model'.format(id_reg, target, fold)
+        )
+
+        if os.path.exists(model_name):
+            continue
         model = reg(**conf[1])
         model.fit(train_data[:, :-1], train_data[:, -1])
         print('{} generated.'.format(id_reg))
-        with open(os.path.join(output_path, id_reg,
-                               'best_{0}_{1}_fold{2:02d}.model'.
-                               format(id_reg, target, fold)), 'wb') as f:
+        with open(model_name, 'wb') as f:
             pickle.dump(file=f, obj=model, protocol=-1)
 
 
