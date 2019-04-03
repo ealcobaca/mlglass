@@ -3,6 +3,10 @@ import pickle
 import numpy as np
 import pandas as pd
 from collections import OrderedDict
+from constants import N_FOLDS_OUTER as n_folds
+from constants import TARGETS_LIST as targets
+from constants import OUTPUT_PATH as output_path
+from constants import SPLIT_DATA_PATH as dataset_path
 
 
 def relative_deviation(obs, pred):
@@ -63,13 +67,9 @@ def path2latex_formula(estimator, features, sample):
     return rule
 
 
-def generate_path_table(estimator, data, target, output_path):
-    X = data.values[:, :-1]
-    y = data.values[:, -1]
-    y_pred = estimator.predict(data.values[:, :-1])
-    rds = relative_deviation(y, y_pred)
+def generate_path_table(obs, preds, rds, paths, target, output_dir):
     with open(
-            os.path.join(output_path, 'path_table_{}.tex'.format(target)),
+            os.path.join(output_dir, 'path_table_{}.tex'.format(target)),
             'w'
          ) as f:
         f.write('% Add to the document preamble: \\usepackage{array}\n')
@@ -80,41 +80,52 @@ def generate_path_table(estimator, data, target, output_path):
         f.write('\t\tid & $T_g$ & $\\hat{T_g}$ & RD (\\%) & Tree branch\\\\\n')
         f.write('\t\t\\midrule\n')
 
-        for i in range(len(data)):
+        for i in range(len(obs)):
             line = '{:02d} & {:.2f} & {:.2f} & {:.2f} & {}\\\\'.format(
-                i, y[i], y_pred[i], rds[i],
-                path2latex_formula(
-                    estimator=estimator,
-                    features=list(data),
-                    sample=X[i]
-                )
+                i, obs[i], preds[i], rds[i], paths[i]
             )
             f.write('\t\t' + line + '\n')
-            if i < len(data) - 1:
+            if i < len(obs) - 1:
                 f.write('\t\t\\hline\n')
         f.write('\t\t\\bottomrule\n')
         f.write('\t\\end{tabular}\n')
         f.write('\\end{table}\n')
 
 
-def main(dataset_path, output_path, targets):
-    for target, ftarget in targets.items():
-        with open(
-                '../../result/dt/default_dt_{}.model'.format(target), 'rb'
-             ) as f:
-            estimator = pickle.load(f)
-        data = pd.read_csv('{}{}_test_rem.csv'.format(dataset_path, ftarget))
-        generate_path_table(estimator, data, target, output_path)
+def main(dataset_path, model_path, output_dir, targets, type='default'):
+    obs = []
+    preds = []
+    rds = []
+    paths = []
+
+    for target in targets:
+        for k in range(1, n_folds + 1):
+            with open(
+                    '{0}/dt/{1}_dt_{2}_fold{3:02d}.model'.format(
+                        model_path, type, target, k
+                    ), 'rb'
+                 ) as f:
+                estimator = pickle.load(f)
+            data = pd.read_csv('{0}/{1}_test_fold{2:02d}_extreme.csv'.format(
+                    dataset_path, target, k
+                )
+            )
+            X = data.values[:, :-1]
+            y = data.values[:, -1]
+            y_pred = estimator.predict(X)
+            obs.extend(y)
+            preds.extend(y_pred)
+            rds.extend(relative_deviation(y, y_pred))
+            paths.extend([
+                path2latex_formula(
+                    estimator=estimator, features=list(data), sample=X[i]
+                ) for i in range(len(X))
+            ])
+
+        generate_path_table(obs, preds, rds, paths, target, output_dir)
 
 
-dataset_path = '../../data/clean/oxides_'
-output_path = '../../result/interpretation'
-targets = {
-    'tg': 'Tg',
-    'nd300': 'ND300',
-    'tl': 'Tliquidus'
-}
-
+output_dir = os.path.join(output_path, 'interpretation')
 
 if __name__ == '__main__':
-    main(dataset_path, output_path, targets)
+    main(dataset_path, output_path, output_dir, targets)

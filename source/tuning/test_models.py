@@ -81,11 +81,14 @@ def get_predictions(input_path, output_path, regressors, target, fold,
 
 def generate4fold(input_path, output_path, log_path, regressors, target,
                   metrics, fold):
+    print('Fold {}'.format(fold))
     test_path = '{}.csv'.format(input_path)
     errors_standard = evaluate_models(test_path, output_path, regressors,
                                       target, metrics, fold)
+    print('Os standards foram')
     errors_best = evaluate_models(test_path, output_path, regressors,
                                   target, metrics, fold, 'best')
+    print('Agora os tunados')
     errors_standard.to_csv(
         os.path.join(
             log_path,

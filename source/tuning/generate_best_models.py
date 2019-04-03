@@ -43,6 +43,9 @@ def train_best_models(train_data, regressors, output_path, target, fold):
 
         if os.path.exists(model_name):
             continue
+
+        if id_reg == 'catboost':
+            conf[1]['thread_count'] = None
         model = reg(**conf[1])
         model.fit(train_data[:, :-1], train_data[:, -1])
         print('{} generated.'.format(id_reg))
