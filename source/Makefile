@@ -5,7 +5,7 @@ n_jobs := 5
 data_tag := tg
 outer_fold := 1
 
-inner_seed := 0	
+inner_seed := 0
 outer_seed := 1
 tuning_seed := 2
 
@@ -33,3 +33,5 @@ run_tuning_svr:
 	@cd tuning; python hyperspaces_glass.py svr $(input_file) $(output_folder) $(max_iter) $(inner_seed) $(n_jobs) $(data_tag) $(outer_seed) $(tuning_seed) $(outer_fold)
 run_tuning_knn:
 	@cd tuning; python hyperspaces_glass.py knn $(input_file) $(output_folder) $(max_iter) $(inner_seed) $(n_jobs) $(data_tag) $(outer_seed) $(tuning_seed) $(outer_fold)
+generate_logs:
+	@cd tuning; python merge_tuning_results.py; python generate_best_models.py; python test_models.py; python log2tex.py
