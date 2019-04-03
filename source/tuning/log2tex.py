@@ -44,8 +44,9 @@ def generate_table():
              ) as f:
             f.write('\\begin{table}[!htbp]\n')
             f.write('\t\\setlength{\\tabcolsep}{3pt}\n')
-            f.write('\t\\begin{{tabular}}{{{0}}}\n'.format(
-                (2*(n_col + 2))*'c')
+            f.write('\t\\resizebox{\\textwidth}{!}{\n')
+            f.write('\t\\begin{{tabular}}{{l{0}}}\n'.format(
+                (2*(n_col + 3) - 1)*'r')
             )
             f.write('\t\t\\toprule\n')
             header = '\t\t\\multirow{2}{*}{Metric} & & '
@@ -71,7 +72,7 @@ def generate_table():
                 line = ['\t\t{}'.format(metrics[metric])]
                 for reg in regressors.keys():
                     line.append(
-                        '${0:.4f} \\pm {1:.4f}$ & ${2:.4f} \\pm {3:.4f}$'.
+                        '${0:.2f} \\pm {1:.2f}$ & ${2:.2f} \\pm {3:.2f}$'.
                         format(
                             mean_standard.loc[metric, reg],
                             std_standard.loc[metric, reg],
@@ -83,7 +84,7 @@ def generate_table():
                 f.write(line)
 
             f.write('\t\t\\bottomrule\n')
-            f.write('\t\\end{tabular}\n')
+            f.write('\t\\end{tabular}}\n')
             f.write('\\end{table}\n')
 
 

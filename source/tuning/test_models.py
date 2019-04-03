@@ -85,10 +85,8 @@ def generate4fold(input_path, output_path, log_path, regressors, target,
     test_path = '{}.csv'.format(input_path)
     errors_standard = evaluate_models(test_path, output_path, regressors,
                                       target, metrics, fold)
-    print('Os standards foram')
     errors_best = evaluate_models(test_path, output_path, regressors,
                                   target, metrics, fold, 'best')
-    print('Agora os tunados')
     errors_standard.to_csv(
         os.path.join(
             log_path,

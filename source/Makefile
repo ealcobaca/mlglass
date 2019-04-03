@@ -34,4 +34,4 @@ run_tuning_svr:
 run_tuning_knn:
 	@cd tuning; python hyperspaces_glass.py knn $(input_file) $(output_folder) $(max_iter) $(inner_seed) $(n_jobs) $(data_tag) $(outer_seed) $(tuning_seed) $(outer_fold)
 generate_logs:
-	@cd tuning; python merge_tuning_results.py; python generate_best_models.py; python test_models.py; python log2tex.py
+	@cd tuning; python merge_tuning_results.py; python generate_best_models.py; python test_models.py; python log2tex.py; python tree_visualization.py

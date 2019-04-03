@@ -67,9 +67,12 @@ def path2latex_formula(estimator, features, sample):
     return rule
 
 
-def generate_path_table(obs, preds, rds, paths, target, output_dir):
+def generate_path_table(obs, preds, rds, paths, target, output_dir, type):
     with open(
-            os.path.join(output_dir, 'path_table_{}.tex'.format(target)),
+            os.path.join(output_dir, 'path_table_{0}_{1}.tex'.format(
+                    target, type
+                )
+            ),
             'w'
          ) as f:
         f.write('% Add to the document preamble: \\usepackage{array}\n')
@@ -82,7 +85,7 @@ def generate_path_table(obs, preds, rds, paths, target, output_dir):
 
         for i in range(len(obs)):
             line = '{:02d} & {:.2f} & {:.2f} & {:.2f} & {}\\\\'.format(
-                i, obs[i], preds[i], rds[i], paths[i]
+                i + 1, obs[i], preds[i], rds[i], paths[i]
             )
             f.write('\t\t' + line + '\n')
             if i < len(obs) - 1:
@@ -113,19 +116,22 @@ def main(dataset_path, model_path, output_dir, targets, type='default'):
             X = data.values[:, :-1]
             y = data.values[:, -1]
             y_pred = estimator.predict(X)
-            obs.extend(y)
-            preds.extend(y_pred)
-            rds.extend(relative_deviation(y, y_pred))
+            obs.extend(y.tolist())
+            preds.extend(y_pred.tolist())
+            rds.extend(relative_deviation(y, y_pred).tolist())
             paths.extend([
                 path2latex_formula(
                     estimator=estimator, features=list(data), sample=X[i]
                 ) for i in range(len(X))
             ])
 
-        generate_path_table(obs, preds, rds, paths, target, output_dir)
+        generate_path_table(obs, preds, rds, paths, target, output_dir, type)
 
 
 output_dir = os.path.join(output_path, 'interpretation')
 
 if __name__ == '__main__':
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
     main(dataset_path, output_path, output_dir, targets)
+    main(dataset_path, output_path, output_dir, targets, 'best')
