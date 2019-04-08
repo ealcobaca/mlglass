@@ -1,0 +1,16 @@
+\begin{table}[!htbp]
+	\setlength{\tabcolsep}{3pt}
+	\resizebox{\textwidth}{!}{
+	\begin{tabular}{lrrrrrrrrrrrrrrr}
+		\toprule
+		\multirow{2}{*}{Metric} & & \multicolumn{2}{c}{DT} & & \multicolumn{2}{c}{k-NN} & & \multicolumn{2}{c}{MLP} & & \multicolumn{2}{c}{RF} & & \multicolumn{2}{c}{SVR}\\
+		 \cline{3-4} \cline{6-7} \cline{9-10} \cline{12-13} \cline{15-16}
+		  & & Default & Tuning & & Default & Tuning & & Default & Tuning & & Default & Tuning & & Default & Tuning\\
+		\midrule
+		RD & & $3.28 \pm 0.11$ & $3.39 \pm 0.10$ & & $2.75 \pm 0.06$ & $2.53 \pm 0.11$ & & $5.76 \pm 0.29$ & $3.04 \pm 0.17$ & & $2.49 \pm 0.06$ & $2.37 \pm 0.06$ & & $16.03 \pm 0.13$ & $4.82 \pm 0.26$\\
+		$R^2$ & & $0.92 \pm 0.01$ & $0.92 \pm 0.00$ & & $0.95 \pm 0.00$ & $0.95 \pm 0.00$ & & $0.85 \pm 0.01$ & $0.95 \pm 0.00$ & & $0.96 \pm 0.00$ & $0.96 \pm 0.00$ & & $0.41 \pm 0.01$ & $0.88 \pm 0.01$\\
+		RMSE & & $43.80 \pm 1.65$ & $43.38 \pm 1.36$ & & $34.61 \pm 0.99$ & $33.15 \pm 1.25$ & & $59.25 \pm 2.46$ & $35.27 \pm 1.55$ & & $31.97 \pm 0.91$ & $29.58 \pm 1.01$ & & $147.37 \pm 0.87$ & $53.00 \pm 1.83$\\
+		RRMSE & & $0.29 \pm 0.01$ & $0.29 \pm 0.01$ & & $0.23 \pm 0.01$ & $0.22 \pm 0.01$ & & $0.39 \pm 0.02$ & $0.23 \pm 0.01$ & & $0.21 \pm 0.01$ & $0.20 \pm 0.01$ & & $0.98 \pm 0.00$ & $0.35 \pm 0.01$\\
+		\bottomrule
+	\end{tabular}}
+\end{table}
