@@ -82,7 +82,7 @@ def get_predictions(input_path, output_path, regressors, target, fold,
 def generate4fold(input_path, output_path, log_path, regressors, target,
                   metrics, fold):
     print('Fold {}'.format(fold))
-    test_path = '{}.csv'.format(input_path)
+    test_path = '{}fold{:02d}.csv'.format(input_path, fold)
     errors_standard = evaluate_models(test_path, output_path, regressors,
                                       target, metrics, fold)
     errors_best = evaluate_models(test_path, output_path, regressors,
@@ -125,7 +125,7 @@ def generate4fold(input_path, output_path, log_path, regressors, target,
         )
     )
 
-    ext_test_path = '{0}_extreme.csv'.format(input_path)
+    ext_test_path = '{0}extreme.csv'.format(input_path)
     pred_standard = get_predictions(ext_test_path, output_path, regressors,
                                     target, fold)
     pred_best = get_predictions(ext_test_path, output_path, regressors,
@@ -193,14 +193,17 @@ metrics = OrderedDict(
 
 
 if __name__ == '__main__':
+    print()
+    print('Testing trained models')
+    print()
     log_path = '{0}/logs'.format(output_path)
     if not os.path.exists(log_path):
         os.makedirs(log_path)
 
     for target in targets:
         for k in range(1, n_folds + 1):
-            input_path = '{0}/{1}_test_fold{2:02d}'.format(
-                data_path, target, k
+            input_path = '{0}/{1}_test_'.format(
+                data_path, target
             )
             generate4fold(
                 input_path, output_path, log_path, regressors, target,
