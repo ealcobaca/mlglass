@@ -3,6 +3,10 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from constants import TARGETS_FORMATTED as targets
+from constants import REGRESSORS_FORMATTED as regressors
+from constants import OUTPUT_PATH as folder_prefix
+from constants import N_FOLDS_OUTER as n_folds
 
 
 def roundup(x, fractionary=False):
@@ -19,21 +23,8 @@ def rounddown(x, fractionary=False):
         return int(math.floor(x / 100.0)) * 100 - 100
 
 
-input_prefix = '../../result'
-output_folder = '../../result/line_plots'
-targets = {
-    'tg': '$T_g$',
-    'nd300': 'ND300',
-    'tl': 'Tliquidus'
-}
-
-regressors = {
-    'dt': 'DT',
-    'knn': 'k-NN',
-    'mlp': 'MLP',
-    'svr': 'SVR',
-    'rf': 'RF',
-}
+output_folder = '{}/line_plots'.format(folder_prefix)
+input_prefix = '{}/logs'.format(folder_prefix)
 
 cmap = 'gist_heat_r'
 
@@ -48,18 +39,35 @@ if not os.path.exists(output_folder):
 for target, ftarget in targets.items():
     fract = target == 'nd300'
     incr = 0.1 if fract else 100
-    standard = pd.read_csv(
-        os.path.join(
-            input_prefix,
-            'predictions_standard_models_{}.csv'.format(target)
+    df_standard = []
+    df_tuned = []
+
+    for k in range(1, n_folds + 1):
+        standard = pd.read_csv(
+            os.path.join(
+                input_prefix,
+                'predictions_standard_models_{}_fold{:02d}.csv'.format(
+                    target, k
+                )
+            )
         )
-    )
-    best = pd.read_csv(
-        os.path.join(
-            input_prefix,
-            'predictions_best_models_{}.csv'.format(target)
+        standard = standard.iloc[:, 1:]
+
+        best = pd.read_csv(
+            os.path.join(
+                input_prefix,
+                'predictions_best_models_{}_fold{:02d}.csv'.format(
+                    target, k
+                )
+            )
         )
-    )
+        best = best.iloc[:, 1:]
+
+        df_standard.append(standard)
+        df_tuned.append(best)
+    standard = pd.concat(df_standard)
+    best = pd.concat(df_tuned)
+
     for reg, freg in regressors.items():
         colors_standard = relative_deviation(
             standard.loc[:, reg],
@@ -83,7 +91,7 @@ for target, ftarget in targets.items():
         plt.plot([x_min, x_max], [x_min, x_max], c='black')
         plt.xlabel(None)
         plt.ylabel(None)
-        plt.title('Default model', fontsize=8)
+        plt.title('Default models', fontsize=8)
         plt.xlim(rounddown(x_min, fract), roundup(x_max, fract))
         plt.ylim(rounddown(x_min, fract), roundup(x_max, fract))
         ax.set_xticks(
@@ -108,7 +116,7 @@ for target, ftarget in targets.items():
         plt.plot([x_min, x_max], [x_min, x_max], c='black')
         plt.xlabel(None)
         plt.ylabel(None)
-        plt.title('Tuned model', fontsize=8)
+        plt.title('Tuned models', fontsize=8)
         plt.xlim(rounddown(x_min, fract), roundup(x_max, fract))
         plt.ylim(rounddown(x_min, fract), roundup(x_max, fract))
         ax.set_xticks(
