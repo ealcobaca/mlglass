@@ -11,21 +11,25 @@ def get_best(path):
     print(path)
     dirs = [x[0] for x in os.walk(path)]
     del dirs[0]
+    fold = -1
     for di in dirs:
+        fold += 1
         files = glob.glob("{0}/*.rcfg".format(di))
         # print(files)
         data = [pickle.load(open(f, 'rb')) for f in files]
         data.sort(key=myFunc)
-        print("mean={0} -- sd={1}".format(np.mean(data[0]['errors']),
-                                          np.std(data[0]['errors'])))
+        print("fold{2} mean={0:5.4f} -- std={1:5.4f}".format(
+            np.mean(data[0]['errors']),
+            np.std(data[0]['errors']), fold))
     print()
 
 def main():
     # d = '.'
     # [os.path.join(d, o) for o in os.listdir(d)
     #  if os.path.isdir(os.path.join(d,o))]
-    paths = ["../../result/dt/tg",
-             "../../result/dt/tg-new",
+    paths = ["../../result/dt/tg-old",
+             "../../result/dt/tg",
+             "../../result/rf/tg-old",
              "../../result/rf/tg",
              "../../result/knn/tg",
              "../../result/catboost/tg",
