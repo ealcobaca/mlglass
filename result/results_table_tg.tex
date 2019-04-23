@@ -1,0 +1,16 @@
+\begin{table}[!htbp]
+	\setlength{\tabcolsep}{3pt}
+	\resizebox{\textwidth}{!}{
+	\begin{tabular}{lrrrrrrrrrrrrrrrrrr}
+		\toprule
+		\multirow{2}{*}{Metric} & & \multicolumn{2}{c}{k-NN} & & \multicolumn{2}{c}{CatBoost} & & \multicolumn{2}{c}{RF} & & \multicolumn{2}{c}{SVR} & & \multicolumn{2}{c}{DT} & & \multicolumn{2}{c}{MLP}\\
+		 \cline{3-4} \cline{6-7} \cline{9-10} \cline{12-13} \cline{15-16} \cline{18-19}
+		  & & Default & Tuning & & Default & Tuning & & Default & Tuning & & Default & Tuning & & Default & Tuning & & Default & Tuning\\
+		\midrule
+		$R^2$ & & $0.9475 \pm 0.0032$ & $0.9518 \pm 0.0038$ & & $0.9159 \pm 0.0035$ & $0.9439 \pm 0.0040$ & & $0.9551 \pm 0.0029$ & $0.9622 \pm 0.0027$ & & $0.4132 \pm 0.0104$ & $0.9157 \pm 0.0063$ & & $0.9178 \pm 0.0048$ & $0.9186 \pm 0.0054$ & & $0.8407 \pm 0.0099$ & $0.9465 \pm 0.0051$\\
+		RD & & $2.7518 \pm 0.0643$ & $2.5279 \pm 0.1077$ & & $4.0670 \pm 0.0729$ & $3.1521 \pm 0.0968$ & & $2.4901 \pm 0.0602$ & $2.3755 \pm 0.0620$ & & $16.0336 \pm 0.1302$ & $3.8334 \pm 0.2521$ & & $3.2707 \pm 0.1113$ & $3.3881 \pm 0.1090$ & & $5.8673 \pm 0.2182$ & $2.9944 \pm 0.1769$\\
+		RRMSE & & $0.2295 \pm 0.0072$ & $0.2198 \pm 0.0090$ & & $0.2911 \pm 0.0058$ & $0.2368 \pm 0.0088$ & & $0.2120 \pm 0.0068$ & $0.1962 \pm 0.0070$ & & $0.9770 \pm 0.0005$ & $0.2906 \pm 0.0111$ & & $0.2898 \pm 0.0092$ & $0.2875 \pm 0.0103$ & & $0.3991 \pm 0.0125$ & $0.2319 \pm 0.0114$\\
+		RMSE & & $34.6080 \pm 0.9887$ & $33.1548 \pm 1.2524$ & & $43.9034 \pm 0.7996$ & $35.7153 \pm 1.2080$ & & $31.9684 \pm 1.0040$ & $29.5953 \pm 0.9823$ & & $147.3653 \pm 0.8652$ & $43.8228 \pm 1.5220$ & & $43.7033 \pm 1.3054$ & $43.3640 \pm 1.4860$ & & $60.1932 \pm 1.8410$ & $34.9699 \pm 1.6983$\\
+		\bottomrule
+	\end{tabular}}
+\end{table}
