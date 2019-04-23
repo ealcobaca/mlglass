@@ -100,7 +100,7 @@ def generate_path_table(estimator, data, target, output_path):
 def main(dataset_path, output_path, targets):
     for target in targets:
         with open(
-                '../../result/dt/default_dt_{}.model'.format(target), 'rb'
+                '../../result/dt/best_dt_tg_fold03.model'.format(target), 'rb'
              ) as f:
             estimator = pickle.load(f)
         data = pd.read_csv('{}/{}_test_extreme.csv'.format(dataset_path, target))
@@ -109,6 +109,8 @@ def main(dataset_path, output_path, targets):
 
 dataset_path = '../../data/clean/train_test_split'
 output_path = '../../result/interpretation'
+if not os.path.exists(output_path):
+    os.makedirs(output_path)
 targets = ['tg']
 
 if __name__ == '__main__':
