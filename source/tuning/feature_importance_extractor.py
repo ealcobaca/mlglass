@@ -3,38 +3,46 @@ import pickle
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from constants import TARGETS_FORMATTED as targets
+from constants import OUTPUT_PATH as output_prefix
+from constants import DATA_PATH as data_path_prefix
+from constants import N_FOLDS_OUTER as n_folds
 
-output_path = '../../result/interpretation'
-targets = {
-    'tg': 'Tg',
-    'nd300': 'ND300',
-    'tl': 'Tliquidus'
-}
+
+output_path = '{}/interpretation'.format(output_prefix)
+
+if not os.path.exists(output_path):
+    os.makedirs(output_path)
+
 
 for target, ftarget in targets.items():
-    data_path = '../../data/clean/oxides_{}_test.csv'.format(ftarget)
-    model_path = '../../result/rf/default_rf_{}.model'.format(target)
-
+    data_path = '{}/data_{}_dupl_rem.csv'.format(data_path_prefix, target)
     data = pd.read_csv(data_path)
     col_names = list(data)
 
-    with open(model_path, 'rb') as f:
-        forest = pickle.load(f)
+    importances = []
+    for k in range(1, n_folds + 1):
+        model_path = '{}/rf/best_rf_{}_fold{:02d}.model'.format(
+            output_prefix, target, k
+        )
 
-    importances = forest.feature_importances_
-    std = np.std([tree.feature_importances_ for tree in forest.estimators_],
-                 axis=0)
-    indices = np.argsort(importances)[::-1]
+        with open(model_path, 'rb') as f:
+            forest = pickle.load(f)
+
+        importances.append(forest.feature_importances_)
+    mean_imp = np.mean(importances, axis=0)
+    std_imp = np.std(importances)
+    indices = np.argsort(mean_imp)[::-1]
 
     ordered_feat = [col_names[i] for i in indices]
     # Plot the feature importances of the forest
     plt.figure(figsize=(10, 4))
     plt.style.use('seaborn-whitegrid')
     plt.title("Feature importances", fontsize=12)
-    plt.bar(range(len(importances)), importances[indices],
-            color='darkgreen', yerr=std[indices], align='center', log=True,
+    plt.bar(range(len(mean_imp)), mean_imp[indices],
+            color='darkgreen', yerr=std_imp[indices], align='center', log=True,
             capsize=1.5)
-    plt.xticks(range(len(importances)), ordered_feat, rotation=90, fontsize=8)
+    plt.xticks(range(len(mean_imp)), ordered_feat, rotation=90, fontsize=8)
     plt.xlim([-1, len(importances)])
     plt.ylabel('log(Importance)', fontsize=10)
     plt.tight_layout()

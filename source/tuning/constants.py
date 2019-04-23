@@ -14,7 +14,7 @@ N_ITER_TUNING = 500
 REGRESSORS_LIST = ['catboost', 'dt', 'knn', 'svr', 'mlp', 'rf']
 REGRESSORS_DEFAULT = {
     'catboost': (CatBoostRegressor, {'verbose': False,
-                                'allow_writing_files': False}),
+                                     'allow_writing_files': False}),
     'dt': (DecisionTreeRegressor, {}),
     'knn': (KNeighborsRegressor, {}),
     'mlp': (MLPRegressor, {}),
@@ -51,3 +51,4 @@ METRICS_FORMATTED = {
 # Paths sections
 OUTPUT_PATH = '../../result'
 SPLIT_DATA_PATH = '../../data/clean/train_test_split'
+DATA_PATH = '../../data/clean'
