@@ -43,7 +43,7 @@ for target, ftarget in targets.items():
             color='darkgreen', yerr=std_imp[indices], align='center', log=True,
             capsize=1.5)
     plt.xticks(range(len(mean_imp)), ordered_feat, rotation=90, fontsize=8)
-    plt.xlim([-1, len(importances)])
+    plt.xlim([-1, len(mean_imp)])
     plt.ylabel('log(Importance)', fontsize=10)
     plt.tight_layout()
     plt.savefig(os.path.join(output_path, 'importance_{}.eps'.format(target)),
