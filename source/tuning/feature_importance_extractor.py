@@ -31,7 +31,7 @@ for target, ftarget in targets.items():
 
         importances.append(forest.feature_importances_)
     mean_imp = np.mean(importances, axis=0)
-    std_imp = np.std(importances)
+    std_imp = np.std(importances, axis=0)
     indices = np.argsort(mean_imp)[::-1]
 
     ordered_feat = [col_names[i] for i in indices]
