@@ -23,7 +23,7 @@ REGRESSORS_DEFAULT = {
 }
 REGRESSORS_FORMATTED = {
     'catboost': 'CatBoost',
-    'dt': 'DT',
+    'dt': 'Cart',
     'knn': 'k-NN',
     'mlp': 'MLP',
     'rf': 'RF',

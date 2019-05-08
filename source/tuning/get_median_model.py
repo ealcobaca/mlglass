@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 files = glob.glob("../../result/logs/performance_best_models_tg_*")
-files = files + glob.glob("../../result/logs/performance_standard_models_tg_*")
+# files = files + glob.glob("../../result/logs/performance_standard_models_tg_*")
 
 files_tag = ["{0}".format(f.split("_")[1]) for f in files]
 files_fold = ["{0}".format(f.split('_')[4].split('.csv')[0]) for f in files]
@@ -28,12 +28,14 @@ result = result.reset_index(drop=True)
 #
 # plt.show()
 
+
 best = result.loc[result["tag"] == 'best']
-median = np.abs(best.iloc[:, :5] - best.median())
+print(best)
+median = np.abs(best.iloc[:, :6] - best.median())
 idxmin = median.idxmin()
+print()
+print(median)
+print(idxmin)
 for alg, idx in zip(idxmin.index, idxmin.values):
-    print("{0} -- fold{1}".format(alg, idx))
+    print("{0} -- fold {1}".format(alg, idx))
 # standard = result.loc[result["tag"] == 'standard']
-
-
-
