@@ -3,13 +3,14 @@ from sklearn.model_selection import KFold
 import numpy as np
 import os
 
-directory = "../../data/clean/train_test_split/"
+directory = "../../data/clean/train_test_split_named/"
 if not os.path.exists(directory):
     os.makedirs(directory)
 
 outer_seed = 1
 
-data = pd.read_csv("../../data/clean/data_tg_dupl_rem.csv")
+data = pd.read_csv("../../data/clean/data_tg_names_dupl_rem.csv")
+# data = pd.read_csv("../../data/clean/data_tg_dupl_rem.csv")
 order = np.argsort(data.iloc[:, -1].values).tolist()
 idx_extremes = order[:6]
 idx_extremes.extend(order[-6:])
@@ -20,7 +21,7 @@ idx_not_extremes = [i for i in range(len(data)) if i not in idx_extremes]
 data = data.iloc[idx_not_extremes, :]
 
 data_extremes.to_csv(
-    "../../data/clean/train_test_split/tg_test_extreme.csv",
+    "../../data/clean/train_test_split_named/tg_test_extreme.csv",
     index=False
 )
 
@@ -37,7 +38,7 @@ for k, (train_index, test_index) in enumerate(kf.split(X)):
     count += 1
     values = []
 
-    aux = "../../data/clean/train_test_split/tg_{0}_fold{1:02d}.csv"
+    aux = "../../data/clean/train_test_split_named/tg_{0}_fold{1:02d}.csv"
     path_name = aux.format("train", count)
     df_train = pd.DataFrame(X_train)
     df_train['Tg'] = y_train
