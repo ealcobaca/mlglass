@@ -54,57 +54,74 @@ def get_tree_paths(tree, min, max):
     return paths
 
 
-def extract_intervals(rf, min, max, features_names, resolution=100,
+def extract_intervals(rf, min_r, max_r, features_names, resolution=20,
                       range_features=(0, 1)):
     incr = (range_features[1] - range_features[0]) / resolution
     n_features = len(features_names) - 1
     paths = []
     for model in rf.estimators_:
-        paths.extend(get_tree_paths(model.tree_, min, max))
+        paths.extend(get_tree_paths(model.tree_, min_r, max_r))
 
-    intervals = [np.zeros(resolution) for i in range(n_features)]
+    intervals = [np.zeros(resolution + 1) for i in range(n_features)]
     for path in paths:
         for elem in path:
             if elem[0] is not None:
                 point = int(round(elem[2] / incr))
-                # TODO: verify whether this is necessary
-                if point > resolution:
-                    point = resolution
 
                 if elem[0]:
                     for i in range(point):
                         intervals[elem[1]][i] += 1
                 else:
-                    for i in range(point, resolution):
+                    for i in range(point, resolution + 1):
                         intervals[elem[1]][i] += 1
     plot_data = {
         'label': [],
         'dist': []
     }
+
+    relevances = []
     for feat, interval in enumerate(intervals):
+        relevances.append(max(interval))
         for i, elem in enumerate(interval):
             plot_data['label'].extend(
                 [features_names[feat] for j in range(int(elem))]
             )
             plot_data['dist'].extend(np.repeat(i * incr, elem).tolist())
+    max_ = max(relevances)
+    min_ = min(relevances)
+    relevances = [(x - min_)/(max_ - min_) for x in relevances]
+    return plot_data, relevances
 
-    return plot_data
 
-
-def plot_violins(plot_data):
+def plot_violins(plot_data, relevances):
     dt_plot = pd.DataFrame.from_dict(plot_data)
+    color_p = sns.cubehelix_palette(start=2, rot=0, dark=0.2, light=1,
+                                    reverse=False, as_cmap=True)
+    colors = [color_p(r) for r in relevances]
     sns.set(style='whitegrid')
     f, ax = plt.subplots(figsize=(10, 5))
     sns.violinplot(
         x='label', y='dist', data=dt_plot,
-        inner='box', palette='Set3', cut=2, linewidth=3,
-        scale='count'
+        inner=None, palette=colors, linewidth=1, cut=0,
+        scale='width', bw=0.5, gridsize=1000
     )
-    sns.despine(left=True)
+    # sns.despine(left=True)
 
-    f.suptitle('Composition visualization', fontsize=18, fontweight='bold')
+    ##########################################################################
+    # Tiago e Edesio, o parametro bw acima controla a "riqueza de detalhes" na
+    # interpolacao
+    ##########################################################################
+
+    ax.set_title('Composition visualization', fontsize=18, fontweight='bold')
     ax.set_xlabel('Features', size=16, alpha=0.7)
     ax.set_ylabel('Amount', size=16, alpha=0.7)
+
+    norm = plt.Normalize(0, 1)
+    sm = plt.cm.ScalarMappable(cmap=color_p, norm=norm)
+    sm.set_array([])
+    cbar = ax.figure.colorbar(sm, fraction=0.02, pad=0.04)
+    cbar.ax.set_title('Frequency')
+    plt.tight_layout()
     plt.show()
 
 
@@ -114,5 +131,6 @@ with open('../../../predicting_high_low_TG/result/rf/default_rf_tg_fold01.model'
 data = pd.read_csv('{0}/data_tg_dupl_rem.csv'.format(input_path))
 features_names = list(data)
 
-plot_data = extract_intervals(rf, 0, 400, features_names)
-plot_violins(plot_data)
+plot_data, relevances = extract_intervals(rf, 1200, 1500, features_names)
+plot_violins(plot_data, relevances)
+# plot_heatmap(plot_data_h)
