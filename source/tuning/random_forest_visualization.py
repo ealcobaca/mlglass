@@ -63,17 +63,21 @@ def extract_intervals(rf, min_r, max_r, features_names, resolution=20,
         paths.extend(get_tree_paths(model.tree_, min_r, max_r))
 
     intervals = [np.zeros(resolution + 1) for i in range(n_features)]
+    decay = 0.8
     for path in paths:
         for elem in path:
             if elem[0] is not None:
                 point = int(round(elem[2] / incr))
 
+                v = 1
                 if elem[0]:
-                    for i in range(point):
-                        intervals[elem[1]][i] += 1
+                    for i in range(point - 1, -1, -1):
+                        intervals[elem[1]][i] += v
+                        v *= decay
                 else:
                     for i in range(point, resolution + 1):
-                        intervals[elem[1]][i] += 1
+                        intervals[elem[1]][i] += v
+                        v *= decay
     plot_data = {
         'label': [],
         'dist': []
@@ -99,11 +103,11 @@ def plot_violins(plot_data, relevances):
                                     reverse=False, as_cmap=True)
     colors = [color_p(r) for r in relevances]
     sns.set(style='whitegrid')
-    f, ax = plt.subplots(figsize=(10, 5))
+    f, ax = plt.subplots(figsize=(12, 4))
     sns.violinplot(
         x='label', y='dist', data=dt_plot,
-        inner=None, palette=colors, linewidth=1, cut=0,
-        scale='width', bw=0.5, gridsize=1000
+        inner=None, palette=colors, linewidth=0.7, cut=0,
+        scale='width', bw=1, gridsize=1000
     )
     # sns.despine(left=True)
 
@@ -112,9 +116,12 @@ def plot_violins(plot_data, relevances):
     # interpolacao
     ##########################################################################
 
-    ax.set_title('Composition visualization', fontsize=18, fontweight='bold')
-    ax.set_xlabel('Features', size=16, alpha=0.7)
-    ax.set_ylabel('Amount', size=16, alpha=0.7)
+    ax.set_title('Composition visualization')
+    # ax.set_title('Composition visualization', fontsize=18, fontweight='bold')
+    # ax.set_xlabel('Features', size=16, alpha=0.7)
+    # ax.set_ylabel('Amount', size=16, alpha=0.7)
+    ax.set_xlabel('Features')
+    ax.set_ylabel('Amount')
 
     norm = plt.Normalize(0, 1)
     sm = plt.cm.ScalarMappable(cmap=color_p, norm=norm)
@@ -122,7 +129,8 @@ def plot_violins(plot_data, relevances):
     cbar = ax.figure.colorbar(sm, fraction=0.02, pad=0.04)
     cbar.ax.set_title('Frequency')
     plt.tight_layout()
-    plt.show()
+    plt.savefig('/home/mastelini/Desktop/interval_visualization.png', dpi=500)
+    # plt.show()
 
 
 with open('../../../predicting_high_low_TG/result/rf/default_rf_tg_fold01.model', 'rb') as f:
