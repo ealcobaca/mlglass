@@ -158,9 +158,9 @@ if __name__ == '__main__':
     features_names = list(data)
 
     plot_data, relevances = extract_intervals(rf, 1200, 1500, features_names)
-    filename = '{0}/interpretation/rf_vis_high_tg.png'
+    filename = '{0}/interpretation/rf_vis_high_tg.png'.format(output_path)
     plot_violins(plot_data, relevances, filename)
 
     plot_data, relevances = extract_intervals(rf, 0, 400, features_names)
-    filename = '{0}/interpretation/rf_vis_low_tg.png'
+    filename = '{0}/interpretation/rf_vis_low_tg.png'.format(output_path)
     plot_violins(plot_data, relevances, filename)
