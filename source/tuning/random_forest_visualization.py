@@ -144,6 +144,7 @@ def plot_violins(plot_data, relevances, filename):
     sm.set_array([])
     cbar = ax.figure.colorbar(sm, fraction=0.012, pad=0.04)
     cbar.ax.set_title('Frequency', size=10)
+    plt.setp(ax.get_xticklabels(), rotation=90, horizontalalignment='center')
     plt.tight_layout()
     plt.savefig(filename, dpi=700)
 
@@ -158,9 +159,9 @@ if __name__ == '__main__':
     features_names = list(data)
 
     plot_data, relevances = extract_intervals(rf, 1200, 1500, features_names)
-    filename = '{0}/interpretation/rf_vis_high_tg.png'
+    filename = '{0}/interpretation/rf_vis_high_tg.png'.format(output_path)
     plot_violins(plot_data, relevances, filename)
 
     plot_data, relevances = extract_intervals(rf, 0, 400, features_names)
-    filename = '{0}/interpretation/rf_vis_low_tg.png'
+    filename = '{0}/interpretation/rf_vis_low_tg.png'.format(output_path)
     plot_violins(plot_data, relevances, filename)
