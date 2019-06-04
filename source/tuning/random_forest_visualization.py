@@ -131,7 +131,8 @@ def extract_intervals_with_data(rf, data, min_r, max_r, features_names,
         for path in paths:
             for elem in path:
                 if elem[0] is not None:
-                    stsfs = (data.iloc[s, elem[1]] <= elem[2]) == elem[0]
+                    stsfs = (data.iloc[s, elem[1]] <= elem[2]) == elem[0] and \
+                        data.iloc[s, elem[1]] > 0.0
 
                     if stsfs:
                         point = int(round(elem[2] / incr))
