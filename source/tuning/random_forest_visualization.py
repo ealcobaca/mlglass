@@ -8,7 +8,7 @@ from constants import DATA_PATH as input_path
 from constants import OUTPUT_PATH as output_path
 
 
-def get_tree_paths(tree, min, max):
+def get_tree_paths(tree, min, max, predicates):
     n_nodes = tree.node_count
     children_left = tree.children_left
     children_right = tree.children_right
@@ -36,10 +36,7 @@ def get_tree_paths(tree, min, max):
             interest_ids.append(i)
 
     # Corresponding paths for those leaves
-    paths = []
     for i in interest_ids:
-        path = [(None, None, values[i])]
-
         current = i
         while True:
             aux1 = np.where(children_left == current)[0]
@@ -48,14 +45,21 @@ def get_tree_paths(tree, min, max):
             # Only one branch is supposed to have a valid test
             if len(aux1) > 0:
                 current = aux1[0]
-                path.insert(0, (True, feature[current], threshold[current]))
+                if not feature[current] in predicates:
+                    predicates[feature[current]] = []
+                predicates[feature[current]].insert(
+                    0, (True, threshold[current])
+                )
             else:
                 current = aux2[0]
-                path.insert(0, (False, feature[current], threshold[current]))
+                if not feature[current] in predicates:
+                    predicates[feature[current]] = []
+                predicates[feature[current]].insert(
+                    0, (False, threshold[current])
+                )
             if current == 0:
                 break
-        paths.append(path)
-    return paths
+    return predicates
 
 
 def extract_intervals_with_data(rf, data, min_r, max_r, features_names,
@@ -67,20 +71,23 @@ def extract_intervals_with_data(rf, data, min_r, max_r, features_names,
 
     incr = (range_features[1] - range_features[0]) / resolution
     n_features = len(features_names) - 1
-    paths = []
+    predicates = {}
     for model in rf.estimators_:
-        paths.extend(get_tree_paths(model.tree_, min_r, max_r))
+        # paths.extend(get_tree_paths(model.tree_, min_r, max_r, predicates))
+        predicates = get_tree_paths(model.tree_, min_r, max_r, predicates)
 
+    # TODO: continuar
     intervals = [np.zeros(resolution + 1) for i in range(n_features)]
     for s in selected_s:
-        for path in paths:
-            for elem in path:
-                if elem[0] is not None:
-                    stsfs = (data.iloc[s, elem[1]] <= elem[2]) == elem[0]
+        for f, f_v in enumerate(data.iloc[s, :-1].values):
+            if not f_v > 0.0:
+                continue
+            for rtest in predicates[f]:
+                stsfs = (f_v <= rtest[1]) == rtest[0]
 
-                    if stsfs and data.iloc[s, elem[1]] > 0.0:
-                        point = int(round(elem[2] / incr))
-                        intervals[elem[1]][point] += 1
+                if stsfs:
+                    point = int(round(f_v / incr))
+                    intervals[f][point] += 1
     plot_data = {
         'label': [],
         'dist': []
