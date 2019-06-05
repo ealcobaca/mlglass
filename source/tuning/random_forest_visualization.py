@@ -1,3 +1,4 @@
+import os
 import pickle
 import numpy as np
 import pandas as pd
@@ -43,6 +44,8 @@ def get_tree_paths(tree, min, max):
         while True:
             aux1 = np.where(children_left == current)[0]
             aux2 = np.where(children_right == current)[0]
+            # np.where returns an array of indexes that match the query
+            # Only one branch is supposed to have a valid test
             if len(aux1) > 0:
                 current = aux1[0]
                 path.insert(0, (True, feature[current], threshold[current]))
@@ -55,67 +58,9 @@ def get_tree_paths(tree, min, max):
     return paths
 
 
-def extract_intervals(rf, min_r, max_r, features_names, resolution=100,
-                      range_features=(0, 1)):
-    decay = 1.0
-    incr = (range_features[1] - range_features[0]) / resolution
-    n_features = len(features_names) - 1
-    paths = []
-    for model in rf.estimators_:
-        paths.extend(get_tree_paths(model.tree_, min_r, max_r))
-
-    intervals = [np.zeros(resolution + 1) for i in range(n_features)]
-    for path in paths:
-        for elem in path:
-            if elem[0] is not None:
-                point = int(round(elem[2] / incr))
-
-                v = 1
-                if elem[0]:
-                    for i in range(point - 1, -1, -1):
-                        intervals[elem[1]][i] += v
-                        v *= decay
-                else:
-                    for i in range(point, resolution + 1):
-                        intervals[elem[1]][i] += v
-                        v *= decay
-    plot_data = {
-        'label': [],
-        'dist': []
-    }
-
-    relevances = []
-    for feat, interval in enumerate(intervals):
-        relevances.append(max(interval))
-        interval_norm = interval.copy()
-
-        max_ = max(interval_norm)
-        min_ = min(interval_norm)
-
-        interval_norm = [
-            int(round(100 * (x - min_)/(max_ - min_))) if max_ > 0 else 0
-            for x in interval_norm
-        ]
-
-        for i, elem in enumerate(interval_norm):
-            plot_data['label'].extend(
-                [features_names[feat] for j in range(int(elem))]
-            )
-            plot_data['dist'].extend(np.repeat(100 * i * incr, elem).tolist())
-
-    max_ = max(relevances)
-    min_ = min(relevances)
-    # relevances = {e: (x - min_)/(max_ - min_)
-    #               for e, x in zip(features_names, relevances)}
-    relevances = [(x - min_)/(max_ - min_)
-                  for x in relevances]
-
-    return plot_data, relevances
-
-
 def extract_intervals_with_data(rf, data, min_r, max_r, features_names,
                                 resolution=100, range_features=(0, 1)):
-
+    # TODO: verificar conectivo logico
     filter1 = data.iloc[:, -1] >= min_r
     filter2 = data.iloc[:, -1] <= max_r
     selected_s = [i for i in range(len(data)) if filter1[i] and filter2[i]]
@@ -131,10 +76,9 @@ def extract_intervals_with_data(rf, data, min_r, max_r, features_names,
         for path in paths:
             for elem in path:
                 if elem[0] is not None:
-                    stsfs = (data.iloc[s, elem[1]] <= elem[2]) == elem[0] and \
-                        data.iloc[s, elem[1]] > 0.0
+                    stsfs = (data.iloc[s, elem[1]] <= elem[2]) == elem[0]
 
-                    if stsfs:
+                    if stsfs and data.iloc[s, elem[1]] > 0.0:
                         point = int(round(elem[2] / incr))
                         intervals[elem[1]][point] += 1
     plot_data = {
@@ -148,25 +92,30 @@ def extract_intervals_with_data(rf, data, min_r, max_r, features_names,
         interval_norm = interval.copy()
 
         max_ = max(interval_norm)
-        min_ = min(interval_norm)
-
+        # Avoid transforming the minimum element to zero
         interval_norm = [
-            int(round(100 * (x - min_)/(max_ - min_))) if max_ > 0 else 0
+            int(round(100 * x/max_)) if max_ > 0.0 else 0.0
             for x in interval_norm
         ]
 
         for i, elem in enumerate(interval_norm):
-            plot_data['label'].extend(
-                [features_names[feat] for j in range(int(elem))]
-            )
-            plot_data['dist'].extend(np.repeat(100 * i * incr, elem).tolist())
+            if elem > 0:
+                plot_data['label'].extend(
+                    [features_names[feat] for j in range(int(elem))]
+                )
+                plot_data['dist'].extend(
+                    np.repeat(100 * i * incr, int(elem)).tolist()
+                )
+            else:
+                plot_data['label'].append(
+                    features_names[feat]
+                )
+                plot_data['dist'].append(
+                    None
+                )
 
-    max_ = max(relevances)
-    min_ = min(relevances)
-    # relevances = {e: (x - min_)/(max_ - min_)
-    #               for e, x in zip(features_names, relevances)}
-    relevances = [(x - min_)/(max_ - min_) if max_ > 0.0 else 0.0
-                  for x in relevances]
+    sum_norm = np.sum(relevances)
+    relevances = [x / sum_norm for x in relevances]
 
     return plot_data, relevances
 
@@ -187,15 +136,22 @@ def plot_violins(plot_data, relevances, filename):
 
     ax.set_title('Composition visualization')
     ax.set_xlabel('Features')
-    ax.set_ylabel('Percent')
+    ax.set_ylabel('Amount (%)')
     for tick in ax.xaxis.get_major_ticks():
         tick.label.set_fontsize(10)
     norm = plt.Normalize(0, 1)
     sm = plt.cm.ScalarMappable(cmap=color_p, norm=norm)
     sm.set_array([])
-    cbar = ax.figure.colorbar(sm, fraction=0.012, pad=0.04)
-    cbar.ax.set_title('Frequency', size=10)
-    plt.setp(ax.get_xticklabels(), rotation=90, horizontalalignment='center')
+    ticks = np.linspace(0, 1, 11)
+    cbar = ax.figure.colorbar(
+        sm, fraction=0.012, pad=0.04, ticks=ticks
+    )
+    cbar.ax.set_yticklabels(
+        ['{}%'.format(int(100 * v)) for v in ticks], ha='right'
+    )
+    cbar.ax.yaxis.set_tick_params(pad=30)
+    cbar.ax.set_title('Frequency', size=10, pad=10)
+    plt.setp(ax.get_xticklabels(), rotation=90, ha='center')
     plt.tight_layout()
     plt.savefig(filename, dpi=700)
 
@@ -211,14 +167,48 @@ if __name__ == '__main__':
     )
     features_names = list(data)
 
-    plot_data, relevances = extract_intervals_with_data(
-        rf, data, 1200, 1500, features_names
-    )
-    filename = '{0}/interpretation/rf_vis_high_tg.png'.format(output_path)
-    plot_violins(plot_data, relevances, filename)
+    dp_h = '{0}/interpretation/rf_data_plot_high.pic'.format(output_path)
+    dp_l = '{0}/interpretation/rf_data_plot_low.pic'.format(output_path)
+    dp_m = '{0}/interpretation/rf_data_plot_mid.pic'.format(output_path)
 
-    plot_data, relevances = extract_intervals_with_data(
-        rf, data, 0, 400, features_names
-    )
-    filename = '{0}/interpretation/rf_vis_low_tg.png'.format(output_path)
-    plot_violins(plot_data, relevances, filename)
+    filename_high = '{0}/interpretation/rf_vis_high_tg.png'.format(output_path)
+    filename_low = '{0}/interpretation/rf_vis_low_tg.png'.format(output_path)
+    filename_mid = '{0}/interpretation/rf_vis_mid_tg.png'.format(output_path)
+
+    # High Tg plot
+    if os.path.isfile(dp_h):
+        with open(dp_h, 'rb') as f:
+            plot_data, relevances = pickle.load(f)
+    else:
+        plot_data, relevances = extract_intervals_with_data(
+            rf, data, 1200, 2000, features_names
+        )
+        with open(dp_h, 'wb') as f:
+            pickle.dump(file=f, obj=(plot_data, relevances), protocol=-1)
+    plot_violins(plot_data, relevances, filename_high)
+
+    # Low Tg plot
+    if os.path.isfile(dp_l):
+        with open(dp_l, 'rb') as f:
+            plot_data, relevances = pickle.load(f)
+    else:
+        plot_data, relevances = extract_intervals_with_data(
+            rf, data, 0, 400, features_names
+        )
+        with open(dp_l, 'wb') as f:
+            pickle.dump(file=f, obj=(plot_data, relevances), protocol=-1)
+
+    plot_violins(plot_data, relevances, filename_low)
+
+    # Middle Tg plot
+    if os.path.isfile(dp_m):
+        with open(dp_m, 'rb') as f:
+            plot_data, relevances = pickle.load(f)
+    else:
+        plot_data, relevances = extract_intervals_with_data(
+            rf, data, 400, 1200, features_names
+        )
+        with open(dp_m, 'wb') as f:
+            pickle.dump(file=f, obj=(plot_data, relevances), protocol=-1)
+
+    plot_violins(plot_data, relevances, filename_mid)
