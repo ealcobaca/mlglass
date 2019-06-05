@@ -88,6 +88,7 @@ def extract_intervals_with_data(rf, data, min_r, max_r, features_names,
 
     relevances = []
     for feat, interval in enumerate(intervals):
+        # Colorscale
         relevances.append(np.sum(interval))
         interval_norm = interval.copy()
 
@@ -122,7 +123,7 @@ def extract_intervals_with_data(rf, data, min_r, max_r, features_names,
 
 def plot_violins(plot_data, relevances, filename):
     dt_plot = pd.DataFrame.from_dict(plot_data)
-    color_p = sns.cubehelix_palette(start=2, rot=0, dark=0.2, light=1,
+    color_p = sns.cubehelix_palette(start=2, rot=0, dark=0.0, light=1,
                                     reverse=False, as_cmap=True)
     colors = [color_p(r) for r in relevances]
     sns.set(style='whitegrid')
