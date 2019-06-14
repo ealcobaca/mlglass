@@ -165,7 +165,7 @@ def plot_violins(plot_data, relevances, filename):
 
 
 if __name__ == '__main__':
-    model_name = '{0}/rf/best_rf_tg_fold04.model'.format(output_path)
+    model_name = '{0}/rf/rf_tg_final.model'.format(output_path)
 
     with open(model_name, 'rb') as f:
         rf = pickle.load(f)
@@ -189,7 +189,7 @@ if __name__ == '__main__':
             plot_data, relevances = pickle.load(f)
     else:
         plot_data, relevances = extract_intervals_with_data(
-            rf, data, 1200, 2000, features_names
+            rf, data, 1150, 2000, features_names
         )
         with open(dp_h, 'wb') as f:
             pickle.dump(file=f, obj=(plot_data, relevances), protocol=-1)
@@ -201,7 +201,7 @@ if __name__ == '__main__':
             plot_data, relevances = pickle.load(f)
     else:
         plot_data, relevances = extract_intervals_with_data(
-            rf, data, 0, 400, features_names
+            rf, data, 0, 450, features_names
         )
         with open(dp_l, 'wb') as f:
             pickle.dump(file=f, obj=(plot_data, relevances), protocol=-1)
@@ -214,7 +214,7 @@ if __name__ == '__main__':
             plot_data, relevances = pickle.load(f)
     else:
         plot_data, relevances = extract_intervals_with_data(
-            rf, data, 400, 1200, features_names
+            rf, data, 450, 1150, features_names
         )
         with open(dp_m, 'wb') as f:
             pickle.dump(file=f, obj=(plot_data, relevances), protocol=-1)
