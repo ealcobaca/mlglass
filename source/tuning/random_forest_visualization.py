@@ -171,7 +171,7 @@ if __name__ == '__main__':
         rf = pickle.load(f)
 
     data = pd.read_csv(
-        '{0}/train_test_split/tg_train_fold04.csv'.format(input_path)
+        '{0}/data_tg_dupl_rem.csv'.format(input_path)
     )
     features_names = list(data)
 
