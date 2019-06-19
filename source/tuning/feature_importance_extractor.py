@@ -45,6 +45,14 @@ for target, ftarget in targets.items():
     plt.xticks(range(len(mean_imp)), ordered_feat, rotation=90, fontsize=8)
     plt.xlim([-1, len(mean_imp)])
     plt.ylabel('log(Importance)', fontsize=10)
+
+    x_tick_pos, _ = plt.xticks()
+    plt.bar(
+        x_tick_pos, [max(plt.yticks()[0])] * len(x_tick_pos),
+        width=(x_tick_pos[1] - x_tick_pos[0]),
+        color=['lightgray', 'white']
+    )
+
     plt.tight_layout()
     plt.savefig(os.path.join(output_path, 'importance_{}.eps'.format(target)),
                 dpi=500)

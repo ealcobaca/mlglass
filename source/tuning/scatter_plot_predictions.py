@@ -1,6 +1,9 @@
 import os
 import math
 import matplotlib.pyplot as plt
+from matplotlib.colors import Normalize
+from matplotlib.cm import ScalarMappable
+from matplotlib.colorbar import ColorbarBase
 import numpy as np
 import pandas as pd
 from constants import TARGETS_FORMATTED as targets
@@ -87,11 +90,11 @@ for target, ftarget in targets.items():
         y = standard.loc[:, '{}_pred'.format(reg)]
 
         plt.scatter(x[order], y[order], s=3, c=colors_standard[order],
-                    cmap=cmap, vmin=0, vmax=100)
+                    cmap=cmap, vmin=0, vmax=np.max(colors_standard))
         plt.plot([x_min, x_max], [x_min, x_max], c='black')
         plt.xlabel(None)
         plt.ylabel(None)
-        plt.title('Default models', fontsize=8)
+        plt.title('Default models', fontsize=10)
         plt.xlim(rounddown(x_min, fract), roundup(x_max, fract))
         plt.ylim(rounddown(x_min, fract), roundup(x_max, fract))
         ax.set_xticks(
@@ -101,9 +104,9 @@ for target, ftarget in targets.items():
             np.arange(rounddown(x_min, fract), roundup(x_max, fract), incr)
         )
         ax.set_axisbelow(True)
-        ax.tick_params(labelsize=8)
+        ax.tick_params(labelsize=10)
         ax.tick_params(axis='x', labelrotation=45)
-        plt.grid(True)
+        plt.grid(True, linewidth=0.1)
 
         ax = plt.subplot(122, aspect='equal')
         order = np.argsort(best.loc[:, reg])
@@ -111,12 +114,12 @@ for target, ftarget in targets.items():
         x_min, x_max = (min(x), max(x))
         y = best.loc[:, '{}_pred'.format(reg)]
 
-        aux_cb = plt.scatter(x[order], y[order], s=3, c=colors_best[order],
-                             cmap=cmap, vmin=0, vmax=100)
+        plt.scatter(x[order], y[order], s=3, c=colors_best[order],
+                    cmap=cmap, vmin=0, vmax=np.max(colors_best))
         plt.plot([x_min, x_max], [x_min, x_max], c='black')
         plt.xlabel(None)
         plt.ylabel(None)
-        plt.title('Tuned models', fontsize=8)
+        plt.title('Tuned models', fontsize=10)
         plt.xlim(rounddown(x_min, fract), roundup(x_max, fract))
         plt.ylim(rounddown(x_min, fract), roundup(x_max, fract))
         ax.set_xticks(
@@ -126,9 +129,9 @@ for target, ftarget in targets.items():
             np.arange(rounddown(x_min, fract), roundup(x_max, fract), incr)
         )
         ax.set_axisbelow(True)
-        ax.tick_params(labelsize=8)
+        ax.tick_params(labelsize=10)
         ax.tick_params(axis='x', labelrotation=45)
-        plt.grid(True)
+        plt.grid(True, linewidth=0.1)
 
         fig.text(0.5, 0.9, '{}'.format(freg),
                  ha='center', va='center', fontsize=12)
@@ -139,11 +142,13 @@ for target, ftarget in targets.items():
 
         fig.subplots_adjust(right=0.9)
         cbar_ax = fig.add_axes([0.91, 0.27, 0.01, 0.4])
-        cbar = fig.colorbar(aux_cb, cax=cbar_ax, ticks=np.arange(0, 110, 20))
+        cbar = ColorbarBase(
+            cbar_ax, norm=Normalize(vmin=0, vmax=100), cmap=cmap
+        )
         cbar.ax.set_yticklabels(['{}%'.format(tick) for tick in
                                  np.arange(0, 110, 20)])
-        cbar.ax.tick_params(labelsize=6)
-        cbar.ax.set_title('RD', fontsize=8)
+        cbar.ax.tick_params(labelsize=8)
+        cbar.ax.set_title('RD', fontsize=10)
 
         plt.savefig(
             os.path.join(
