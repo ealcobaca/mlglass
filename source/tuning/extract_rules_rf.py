@@ -8,11 +8,6 @@ from multiprocessing import Pool
 
 def path2rule(estimator, features, data, tree_id, out_path):
     for i in range(len(data)):
-        file_name = '{0}/t{1:03d}/rule_s{2:05d}.txt'.format(
-            out_path, tree_id, i
-        )
-        if os.path.exists(file_name):
-            continue
         sample = data[i, :].reshape(1, -1)
 
         prediction = estimator.predict(sample[:, :-1])
@@ -46,8 +41,11 @@ def path2rule(estimator, features, data, tree_id, out_path):
             rule, str(sample[0, -1]), str(prediction[0]), str(i),
             str(tree_id)
         ])
-        with open(file_name, 'w') as f:
-            f.write(line)
+        file_name = '{0}/rules_t{1:03d}.txt'.format(
+            out_path, tree_id
+        )
+        with open(file_name, 'a') as f:
+            f.write('\n' + line)
 
 
 n_cpus = 40
