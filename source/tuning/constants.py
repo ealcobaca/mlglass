@@ -1,6 +1,6 @@
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.tree import DecisionTreeRegressor
-from catboost import CatBoostRegressor
+# from catboost import CatBoostRegressor
 from sklearn.neural_network import MLPRegressor
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.svm import SVR
@@ -13,8 +13,8 @@ N_ITER_TUNING = 500
 # Regressors section
 REGRESSORS_LIST = ['catboost', 'dt', 'knn', 'svr', 'mlp', 'rf']
 REGRESSORS_DEFAULT = {
-    'catboost': (CatBoostRegressor, {'verbose': False,
-                                     'allow_writing_files': False}),
+    # 'catboost': (CatBoostRegressor, {'verbose': False,
+    #                                  'allow_writing_files': False}),
     'dt': (DecisionTreeRegressor, {}),
     'knn': (KNeighborsRegressor, {}),
     'mlp': (MLPRegressor, {}),
@@ -22,7 +22,7 @@ REGRESSORS_DEFAULT = {
     'svr': (SVR, {'gamma': 'auto'})
 }
 REGRESSORS_FORMATTED = {
-    'catboost': 'CatBoost',
+    # 'catboost': 'CatBoost',
     'dt': 'Cart',
     'knn': 'k-NN',
     'mlp': 'MLP',
