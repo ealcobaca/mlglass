@@ -24,13 +24,13 @@ if __name__ == '__main__':
             '{0}/tg_test_fold{1:02d}.csv'.format(
                 input_data_path, k + 1
             )
-        )
+        ).values
 
         model_name = '{0}/rf/best_rf_tg_fold{1:02d}.model'.format(
             output_path, k + 1
         )
         with open(model_name, 'rb') as f:
-            rf = pickle.load(model_name)
+            rf = pickle.load(f)
         aux_p, aux_c = get_rf_predictions_and_confidence(
             rf, test[:, :-1]
         )
@@ -38,8 +38,9 @@ if __name__ == '__main__':
         predictions.extend(aux_p.tolist())
         confidence.extend(aux_c.tolist())
 
-    with open('{0}/rf/confidence_pred_data.data', 'wb') as f:
+    with open('{0}/rf/confidence_pred_data.data'.format(output_path), 'wb') as f:
         pickle.dump(
             obj=(observations, predictions, confidence),
+            file=f,
             protocol=-1
         )
