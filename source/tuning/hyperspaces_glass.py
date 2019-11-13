@@ -243,6 +243,8 @@ def main(parameters):
         os.makedirs(output_folder)
 
     data = pd.read_csv(input_file)
+    # Removing ID column
+    data = data.iloc[:, 1:]
     X, y = data.iloc[:, :-1].values, data.iloc[:, -1].values
 
 

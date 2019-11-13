@@ -64,11 +64,11 @@ if __name__ == '__main__':
     out_path = '{0}/interpretation/raw_rf_rules'.format(output_path)
     if not os.path.exists(out_path):
         os.makedirs(out_path)
-    for j in range(len(rf.estimators_)):
-        folder = '{0}/t{1:03d}'.format(out_path, j)
-        if not os.path.exists(folder):
-            os.makedirs(folder)
-    print('Folders created')
+    #for j in range(len(rf.estimators_)):
+    #    folder = '{0}/t{1:03d}'.format(out_path, j)
+    #    if not os.path.exists(folder):
+    #        os.makedirs(folder)
+    #print('Folders created')
     pool = Pool(processes=n_cpus)
     for j, estimator in enumerate(rf.estimators_):
         pool.apply_async(

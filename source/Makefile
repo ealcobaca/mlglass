@@ -1,8 +1,8 @@
-input_file := ../../data/clean/data_tg_dupl_rem.csv
-output_folder := ../../result/
+input_file := ../../data/other_properties/ICMC_oxides_Abbe.csv
+output_folder := ../../all_properties_results/
 max_iter := 500
-n_jobs := 5
-data_tag := tg
+n_jobs := 40
+data_tag := abbe
 outer_fold := 1
 
 inner_seed := 0
