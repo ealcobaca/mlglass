@@ -1,8 +1,8 @@
-input_file := ../../data/other_properties/ICMC_oxides_Abbe.csv
+input_file := ../../data/other_properties/ICMC_oxides_Young.csv
 output_folder := ../../all_properties_results/
 max_iter := 500
 n_jobs := 40
-data_tag := abbe
+data_tag := young
 outer_fold := 1
 
 inner_seed := 0
