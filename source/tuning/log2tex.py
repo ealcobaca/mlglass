@@ -4,6 +4,11 @@ from constants import OUTPUT_PATH as input_prefix
 from constants import TARGETS_LIST as targets
 from constants import REGRESSORS_FORMATTED as regressors
 from constants import METRICS_FORMATTED as metrics
+from math import log10, floor
+
+
+def round_to_significant_figures(x):
+    return -int(floor(log10(abs(x - int(x)))))
 
 
 def generate_table():
@@ -71,13 +76,22 @@ def generate_table():
             for metric in metrics.keys():
                 line = ['\t\t{}'.format(metrics[metric])]
                 for reg in regressors.keys():
+                    standard_digits = round_to_significant_figures(
+                        std_standard.loc[metric, reg]
+                    )
+                    best_digits = round_to_significant_figures(
+                        std_best.loc[metric, reg]
+                    )
+
                     line.append(
-                        '${0:.4f} \\pm {1:.4f}$ & ${2:.4f} \\pm {3:.4f}$'.
+                        '${0:.{prec_std}f} \\pm {1:.{prec_std}f}$ & ${2:.{prec_best}f} \\pm {3:.{prec_best}f}$'.
                         format(
-                            mean_standard.loc[metric, reg],
-                            std_standard.loc[metric, reg],
-                            mean_best.loc[metric, reg],
-                            std_best.loc[metric, reg]
+                            round(mean_standard.loc[metric, reg], standard_digits),
+                            round(std_standard.loc[metric, reg], standard_digits),
+                            round(mean_best.loc[metric, reg], best_digits),
+                            round(std_best.loc[metric, reg], best_digits),
+                            prec_std=standard_digits,
+                            prec_best=best_digits
                         )
                     )
                 line = '{}\\\\\n'.format(' & & '.join(line))
