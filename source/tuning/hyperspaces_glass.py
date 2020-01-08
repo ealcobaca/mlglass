@@ -1,5 +1,4 @@
 import os
-import datetime
 import sys
 import pickle
 import numpy as np
@@ -13,6 +12,7 @@ from random_search import RandomSearch
 from sklearn.model_selection import KFold
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.svm import SVR
+from sklearn.preprocessing import StandardScaler
 
 
 def mlp_archictecture_builder():
@@ -194,6 +194,7 @@ def objective(**kwargs):
     output_folder = kwargs.pop('output_folder')
     data_tag = kwargs.pop('data_tag')
     id_tuning = kwargs.pop('id_tuning')
+    must_normalize = kwargs.pop('must_normalize')
 
     file_name = '{0}/{1}_{2}_{3}_.rcfg'.format(output_folder, model_name,
                                                id_tuning, data_tag)
@@ -208,9 +209,20 @@ def objective(**kwargs):
     for train_index, test_index in kf.split(X):
         X_train, y_train = X[train_index], y[train_index]
         X_test, y_test = X[test_index], y[test_index]
+        if must_normalize:
+            scaler_y = StandardScaler()
+            y_train = scaler_y.fit_transform(y_train.reshape(-1, 1))[:, 0]
         regressor = model(**kwargs)
         regressor.fit(X_train, y_train)
-        error = loss_func(y_test, regressor.predict(X_test))
+        if must_normalize:
+            error = loss_func(
+                y_test,
+                scaler_y.inverse_transform(
+                    regressor.predict(X_test).reshape(-1, 1)
+                )[:, 0]
+            )
+        else:
+            error = loss_func(y_test, regressor.predict(X_test))
         errors.append(error)
 
     with open(file_name, 'wb') as file:
@@ -223,9 +235,9 @@ def objective(**kwargs):
 
 
 def main(parameters):
-    if (len(parameters) - 1) != 7:
-        print("Missing required parameters: (regressor, input_file, \
-              output_folder, max_iter, seed)")
+    # if (len(parameters) - 1) != 7:
+    #     print("Missing required parameters: (regressor, input_file, \
+    #           output_folder, max_iter, seed)")
     regressor = parameters[1]
     input_file = parameters[2]
     output_folder = parameters[3]
@@ -236,6 +248,7 @@ def main(parameters):
     outer_seed = int(parameters[8])
     tuning_seed = int(parameters[9])
     outer_fold = int(parameters[10])
+    must_normalize = bool(parameters[11])
 
     output_folder = os.path.join(output_folder, regressor, data_tag,
                                  "outer_fold"+str(outer_fold))
@@ -246,7 +259,6 @@ def main(parameters):
     # Removing ID column
     data = data.iloc[:, 1:]
     X, y = data.iloc[:, :-1].values, data.iloc[:, -1].values
-
 
     kf = KFold(n_splits=10, random_state=outer_seed, shuffle=True)
 
@@ -260,7 +272,7 @@ def main(parameters):
                       max_iter=max_iter, n_jobs=n_jobs,
                       random_state=tuning_seed)
 
-    # best_conf = 
+    # best_conf =
     rs.fmin(
         objective=objective,
         predictor=get_regressor(algorithm=regressor),
@@ -270,7 +282,8 @@ def main(parameters):
         seed=inner_seed,
         model_name=regressor,
         output_folder=output_folder,
-        data_tag=data_tag
+        data_tag=data_tag,
+        must_normalize=must_normalize
     )
 
     # with open('{0}/best_configuration_{1}_{2}_.rcfg'.format(output_folder,
