@@ -1,7 +1,7 @@
+import os
+import pickle
 import numpy as np
 import pandas as pd
-import pickle
-import os
 from collections import OrderedDict
 from constants import TARGETS_LIST as targets
 from constants import REGRESSORS_LIST as regressors
@@ -43,7 +43,17 @@ def evaluate_models(input_path, output_path, regressors, target, metrics,
             ), 'rb'
         ) as f:
             regressor = pickle.load(f)
-            predictions = regressor.predict(test_data[:, :-1])
+            if regressor['scaler'] is None:
+                predictions = regressor['model'].predict(test_data[:, :-1])
+            else:
+                predictions = regressor['scaler'].inverse_transform(
+                    regressor['model'].predict(
+                        regressor['scaler'].transform(
+                            test_data[:, :-1].reshape(-1, 1)[:, 0]
+                        )
+                    ).reshape(-1, 1)
+                )[:, 0]
+
         for i, metric in enumerate(metrics.values()):
             errors[i, j] = metric(test_data[:, -1], predictions)
     df = pd.DataFrame(
@@ -69,7 +79,16 @@ def get_predictions(input_path, output_path, regressors, target, fold,
         ) as f:
             regressor = pickle.load(f)
             log[:, 2*j] = test_data[:, -1]
-            log[:, 2*j+1] = regressor.predict(test_data[:, :-1])
+            if regressor['scaler'] is None:
+                log[:, 2*j+1] = regressor['model'].predict(test_data[:, :-1])
+            else:
+                log[:, 2*j+1] = regressor['scaler'].inverse_transform(
+                    regressor['model'].predict(
+                        regressor['scaler'].transform(
+                            test_data[:, :-1].reshape(-1, 1)[:, 0]
+                        )
+                    ).reshape(-1, 1)
+                )[:, 0]
     columns = [[r, '{}_pred'.format(r)] for r in regressors]
     columns = [n for subset in columns for n in subset]
     df = pd.DataFrame(
@@ -125,27 +144,27 @@ def generate4fold(input_path, output_path, log_path, regressors, target,
         )
     )
 
-    ext_test_path = '{0}extreme.csv'.format(input_path)
-    pred_standard = get_predictions(ext_test_path, output_path, regressors,
-                                    target, fold)
-    pred_best = get_predictions(ext_test_path, output_path, regressors,
-                                target, fold, 'best')
-    pred_standard.to_csv(
-        os.path.join(
-            log_path,
-            'predictions_extremes_standard_models_{0}_fold{1:02d}.csv'.format(
-                target, fold
-            )
-        )
-    )
-    pred_best.to_csv(
-        os.path.join(
-            log_path,
-            'predictions_extremes_best_models_{0}_fold{1:02d}.csv'.format(
-                target, fold
-            )
-        )
-    )
+    # ext_test_path = '{0}extreme.csv'.format(input_path)
+    # pred_standard = get_predictions(ext_test_path, output_path, regressors,
+    #                                 target, fold)
+    # pred_best = get_predictions(ext_test_path, output_path, regressors,
+    #                             target, fold, 'best')
+    # pred_standard.to_csv(
+    #     os.path.join(
+    #         log_path,
+    #         'predictions_extremes_standard_models_{0}_fold{1:02d}.csv'.format(
+    #             target, fold
+    #         )
+    #     )
+    # )
+    # pred_best.to_csv(
+    #     os.path.join(
+    #         log_path,
+    #         'predictions_extremes_best_models_{0}_fold{1:02d}.csv'.format(
+    #             target, fold
+    #         )
+    #     )
+    # )
 
 
 def merge_errors(target, output_path, log_path, type='standard'):

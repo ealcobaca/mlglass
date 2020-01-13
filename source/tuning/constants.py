@@ -35,14 +35,15 @@ REGRESSORS_FORMATTED = {
 # Targets section
 # TARGETS_LIST = ['tg', 'nd300', 'tl']
 # TARGETS_LIST = ['tg']
-TARGETS_LIST = ['abbe', 'nd300', 'tliquidus', 'tec', 'young']
+# TARGETS_LIST = ['abbe', 'nd300', 'tliquidus', 'tec', 'young']
+TARGETS_LIST = ['tec']
 TARGETS_FORMATTED = {
     # 'tg': '$T_g$',
-    'abbe': 'Abbe',
-    'nd300': 'ND300',
-    'tliquidus': 'Tliquidus',
+    # 'abbe': 'Abbe',
+    # 'nd300': 'ND300',
+    # 'tliquidus': 'Tliquidus',
     'tec': 'TEC',
-    'young': 'Young',
+    # 'young': 'Young',
 }
 
 METRICS_FORMATTED = {
