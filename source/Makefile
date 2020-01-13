@@ -1,4 +1,4 @@
-input_file := ../../data/other_properties/ICMC_oxides_TEC.csv
+input_file := ../../data/other_properties/ICMC_oxides_TEC_neg_rem.csv
 output_folder := ../../all_properties_results/
 max_iter := 500
 n_jobs := 40
