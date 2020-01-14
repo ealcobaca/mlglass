@@ -56,5 +56,7 @@ METRICS_FORMATTED = {
 
 # Paths sections
 OUTPUT_PATH = '../../all_properties_results'
-SPLIT_DATA_PATH = '../../data/clean/train_test_split'
+SPLIT_DATA_PATH = '../../data/other_properties/train_test_split'
 DATA_PATH = '../../data/other_properties'
+DATASET_PREFIX = 'ICMC_oxides_'
+REMOVE_ID_COLUMN = True

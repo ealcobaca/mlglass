@@ -43,13 +43,15 @@ def evaluate_models(input_path, output_path, regressors, target, metrics,
             ), 'rb'
         ) as f:
             regressor = pickle.load(f)
-            if regressor['scaler'] is None:
+            if not isinstance(regressor, dict):
+                predictions = regressor.predict(test_data[:, :-1])
+            elif regressor['scaler'] is None:
                 predictions = regressor['model'].predict(test_data[:, :-1])
             else:
                 predictions = regressor['scaler'].inverse_transform(
                     regressor['model'].predict(
                         regressor['scaler'].transform(
-                            test_data[:, :-1].reshape(-1, 1)[:, 0]
+                            test_data[:, :-1]
                         )
                     ).reshape(-1, 1)
                 )[:, 0]
@@ -79,13 +81,15 @@ def get_predictions(input_path, output_path, regressors, target, fold,
         ) as f:
             regressor = pickle.load(f)
             log[:, 2*j] = test_data[:, -1]
-            if regressor['scaler'] is None:
+            if not isinstance(regressor, dict):
+                log[:, 2*j+1] = regressor.predict(test_data[:, :-1])
+            elif regressor['scaler'] is None:
                 log[:, 2*j+1] = regressor['model'].predict(test_data[:, :-1])
             else:
                 log[:, 2*j+1] = regressor['scaler'].inverse_transform(
                     regressor['model'].predict(
                         regressor['scaler'].transform(
-                            test_data[:, :-1].reshape(-1, 1)[:, 0]
+                            test_data[:, :-1]
                         )
                     ).reshape(-1, 1)
                 )[:, 0]

@@ -26,7 +26,7 @@ def train_default_models(train_data, regressors, output_path, target, fold,
         if must_normalize:
             tscaler = StandardScaler()
             scaled_y = tscaler.fit_transform(
-                train_data[:, -1].values.reshape(-1, 1))[:, 0]
+                train_data[:, -1].reshape(-1, 1))[:, 0]
             model.fit(train_data[:, :-1], scaled_y)
         else:
             model.fit(train_data[:, :-1], train_data[:, -1])
@@ -68,7 +68,7 @@ def train_best_models(train_data, regressors, output_path, target, fold,
         if must_normalize:
             tscaler = StandardScaler()
             scaled_y = tscaler.fit_transform(
-                train_data[:, -1].values.reshape(-1, 1))[:, 0]
+                train_data[:, -1].reshape(-1, 1))[:, 0]
             model.fit(train_data[:, :-1], scaled_y)
         else:
             model.fit(train_data[:, :-1], train_data[:, -1])

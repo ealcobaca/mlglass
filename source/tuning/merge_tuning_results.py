@@ -29,20 +29,26 @@ def get_best_conf(data_dir, regressor, target):
 if __name__ == '__main__':
     for target in targets:
         for regressor in regressors:
-            data_path = '{0}/{1}/{1}-{2}.zip'.format(
+            # data_path = '{0}/{1}/{1}-{2}.zip'.format(
+            #     output_path, regressor, target
+            # )
+            data_path = '{0}/{1}/{2}'.format(
                 output_path, regressor, target
             )
             with tempfile.TemporaryDirectory() as td:
-                with zipfile.ZipFile(data_path, 'r') as zf:
-                    zf.extractall(path=td)
+                # with zipfile.ZipFile(data_path, 'r') as zf:
+                #     zf.extractall(path=td)
                 for k in range(1, n_folds + 1):
-                    dir_prefix = '{0}/outer_fold{1}'.format(
-                        target, k
-                    )
+                    # dir_prefix = '{0}/outer_fold{1}'.format(
+                    #     target, k
+                    # )
+                    dir_prefix = 'outer_fold{}'.format(k)
                     f_name = 'best_configuration_{0}_{1}_fold{2:02d}_.rcfg'.\
                         format(regressor, target, k)
                     best_error, best_conf = get_best_conf(
-                        '{0}/{1}'.format(td, dir_prefix), regressor, target
+                        # '{0}/{1}'.format(td, dir_prefix), regressor, target
+                        '{0}/{1}'.format(data_path, dir_prefix),
+                        regressor, target
                     )
                     out_file = '{0}/{1}/{2}'.format(
                         output_path, regressor, f_name
