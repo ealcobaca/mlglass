@@ -1,4 +1,5 @@
 import os
+import sys
 import pickle
 import numpy as np
 import pandas as pd
@@ -30,7 +31,7 @@ def RMSE(target, pred):
 
 
 def evaluate_models(input_path, output_path, regressors, target, metrics,
-                    fold, type='default'):
+                    fold, must_normalize, type='default'):
     errors = np.zeros((len(metrics), len(regressors)))
     test_data = pd.read_csv(input_path).values
     for j, regressor in enumerate(regressors):
@@ -43,18 +44,10 @@ def evaluate_models(input_path, output_path, regressors, target, metrics,
             ), 'rb'
         ) as f:
             regressor = pickle.load(f)
-            if not isinstance(regressor, dict):
+            if not must_normalize:
                 predictions = regressor.predict(test_data[:, :-1])
-            elif regressor['scaler'] is None:
-                predictions = regressor['model'].predict(test_data[:, :-1])
             else:
-                predictions = regressor['scaler'].inverse_transform(
-                    regressor['model'].predict(
-                        regressor['scaler'].transform(
-                            test_data[:, :-1]
-                        )
-                    ).reshape(-1, 1)
-                )[:, 0]
+                predictions = np.exp(regressor.predict(test_data[:, :-1]))
 
         for i, metric in enumerate(metrics.values()):
             errors[i, j] = metric(test_data[:, -1], predictions)
@@ -67,7 +60,7 @@ def evaluate_models(input_path, output_path, regressors, target, metrics,
 
 
 def get_predictions(input_path, output_path, regressors, target, fold,
-                    type='default'):
+                    must_normalize, type='default'):
     test_data = pd.read_csv(input_path).values
     log = np.zeros((len(test_data), 2 * len(regressors)))
     for j, regressor in enumerate(regressors):
@@ -81,18 +74,11 @@ def get_predictions(input_path, output_path, regressors, target, fold,
         ) as f:
             regressor = pickle.load(f)
             log[:, 2*j] = test_data[:, -1]
-            if not isinstance(regressor, dict):
+            if not must_normalize:
                 log[:, 2*j+1] = regressor.predict(test_data[:, :-1])
-            elif regressor['scaler'] is None:
-                log[:, 2*j+1] = regressor['model'].predict(test_data[:, :-1])
             else:
-                log[:, 2*j+1] = regressor['scaler'].inverse_transform(
-                    regressor['model'].predict(
-                        regressor['scaler'].transform(
-                            test_data[:, :-1]
-                        )
-                    ).reshape(-1, 1)
-                )[:, 0]
+                log[:, 2*j+1] = np.exp(regressor.predict(test_data[:, :-1]))
+
     columns = [[r, '{}_pred'.format(r)] for r in regressors]
     columns = [n for subset in columns for n in subset]
     df = pd.DataFrame(
@@ -103,13 +89,15 @@ def get_predictions(input_path, output_path, regressors, target, fold,
 
 
 def generate4fold(input_path, output_path, log_path, regressors, target,
-                  metrics, fold):
+                  metrics, fold, must_normalize):
     print('Fold {}'.format(fold))
     test_path = '{}fold{:02d}.csv'.format(input_path, fold)
     errors_standard = evaluate_models(test_path, output_path, regressors,
-                                      target, metrics, fold)
-    errors_best = evaluate_models(test_path, output_path, regressors,
-                                  target, metrics, fold, 'best')
+                                      target, metrics, fold, must_normalize)
+    errors_best = evaluate_models(
+        test_path, output_path, regressors, target, metrics, fold,
+        must_normalize, 'best'
+    )
     errors_standard.to_csv(
         os.path.join(
             log_path,
@@ -128,9 +116,9 @@ def generate4fold(input_path, output_path, log_path, regressors, target,
     )
 
     pred_standard = get_predictions(test_path, output_path, regressors,
-                                    target, fold)
+                                    target, fold, must_normalize)
     pred_best = get_predictions(test_path, output_path, regressors,
-                                target, fold, 'best')
+                                target, fold, must_normalize, 'best')
     pred_standard.to_csv(
         os.path.join(
             log_path,
@@ -147,28 +135,6 @@ def generate4fold(input_path, output_path, log_path, regressors, target,
             )
         )
     )
-
-    # ext_test_path = '{0}extreme.csv'.format(input_path)
-    # pred_standard = get_predictions(ext_test_path, output_path, regressors,
-    #                                 target, fold)
-    # pred_best = get_predictions(ext_test_path, output_path, regressors,
-    #                             target, fold, 'best')
-    # pred_standard.to_csv(
-    #     os.path.join(
-    #         log_path,
-    #         'predictions_extremes_standard_models_{0}_fold{1:02d}.csv'.format(
-    #             target, fold
-    #         )
-    #     )
-    # )
-    # pred_best.to_csv(
-    #     os.path.join(
-    #         log_path,
-    #         'predictions_extremes_best_models_{0}_fold{1:02d}.csv'.format(
-    #             target, fold
-    #         )
-    #     )
-    # )
 
 
 def merge_errors(target, output_path, log_path, type='standard'):
@@ -216,6 +182,7 @@ metrics = OrderedDict(
 
 
 if __name__ == '__main__':
+    must_normalize = bool(sys.argv[1])
     print()
     print('Testing trained models')
     print()
@@ -230,7 +197,7 @@ if __name__ == '__main__':
             )
             generate4fold(
                 input_path, output_path, log_path, regressors, target,
-                metrics, k
+                metrics, k, must_normalize
             )
         merge_errors(target, output_path, log_path)
         merge_errors(target, output_path, log_path, 'best')

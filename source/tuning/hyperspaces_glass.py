@@ -12,7 +12,6 @@ from random_search import RandomSearch
 from sklearn.model_selection import KFold
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.svm import SVR
-from sklearn.preprocessing import StandardScaler
 
 
 def mlp_archictecture_builder():
@@ -210,16 +209,13 @@ def objective(**kwargs):
         X_train, y_train = X[train_index], y[train_index]
         X_test, y_test = X[test_index], y[test_index]
         if must_normalize:
-            scaler_y = StandardScaler()
-            y_train = scaler_y.fit_transform(y_train.reshape(-1, 1))[:, 0]
+            y_train = np.log(y_train)
         regressor = model(**kwargs)
         regressor.fit(X_train, y_train)
         if must_normalize:
             error = loss_func(
                 y_test,
-                scaler_y.inverse_transform(
-                    regressor.predict(X_test).reshape(-1, 1)
-                )[:, 0]
+                np.exp(regressor.predict(X_test))
             )
         else:
             error = loss_func(y_test, regressor.predict(X_test))

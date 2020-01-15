@@ -1,8 +1,8 @@
 import os
 import sys
+import numpy as np
 import pandas as pd
 import pickle
-from sklearn.preprocessing import StandardScaler
 
 from constants import OUTPUT_PATH as output_path
 from constants import REGRESSORS_DEFAULT as regressors
@@ -22,21 +22,15 @@ def train_default_models(train_data, regressors, output_path, target, fold,
             continue
         model = reg(**conf)
 
-        tscaler = None
         if must_normalize:
-            tscaler = StandardScaler()
-            scaled_y = tscaler.fit_transform(
-                train_data[:, -1].reshape(-1, 1))[:, 0]
+            scaled_y = np.log(train_data[:, -1])
             model.fit(train_data[:, :-1], scaled_y)
         else:
             model.fit(train_data[:, :-1], train_data[:, -1])
         print('{} generated.'.format(id_reg))
-        to_save = {
-            'model': model,
-            'scaler': tscaler
-        }
+
         with open(model_name, 'wb') as f:
-            pickle.dump(file=f, obj=to_save, protocol=-1)
+            pickle.dump(file=f, obj=model, protocol=-1)
 
 
 def train_best_models(train_data, regressors, output_path, target, fold,
@@ -64,22 +58,15 @@ def train_best_models(train_data, regressors, output_path, target, fold,
             conf[1]['thread_count'] = None
         model = reg(**conf[1])
 
-        tscaler = None
         if must_normalize:
-            tscaler = StandardScaler()
-            scaled_y = tscaler.fit_transform(
-                train_data[:, -1].reshape(-1, 1))[:, 0]
+            scaled_y = np.log(train_data[:, -1])
             model.fit(train_data[:, :-1], scaled_y)
         else:
             model.fit(train_data[:, :-1], train_data[:, -1])
 
         print('{} generated.'.format(id_reg))
-        to_save = {
-            'model': model,
-            'scaler': tscaler
-        }
         with open(model_name, 'wb') as f:
-            pickle.dump(file=f, obj=to_save, protocol=-1)
+            pickle.dump(file=f, obj=model, protocol=-1)
 
 
 def main(parameters):
