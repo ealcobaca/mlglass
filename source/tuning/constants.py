@@ -34,14 +34,16 @@ REGRESSORS_FORMATTED = {
 
 # Targets section
 # TARGETS_LIST = ['tg', 'nd300', 'tl']
-TARGETS_LIST = ['abbe', 'nd300', 'tec', 'tliquidus', 'young']
+# TARGETS_LIST = ['tg']
+# TARGETS_LIST = ['abbe', 'nd300', 'tliquidus', 'tec', 'young']
+TARGETS_LIST = ['tec']
 TARGETS_FORMATTED = {
     # 'tg': '$T_g$',
-    'abbe': 'Abbe',
-    'nd300': 'ND300',
+    # 'abbe': 'Abbe',
+    # 'nd300': 'ND300',
+    # 'tliquidus': 'Tliquidus',
     'tec': 'TEC',
-    'tliquidus': 'Tliquidus',
-    'young': 'Young'
+    # 'young': 'Young',
 }
 
 METRICS_FORMATTED = {
@@ -56,4 +58,5 @@ METRICS_FORMATTED = {
 OUTPUT_PATH = '../../all_properties_results'
 SPLIT_DATA_PATH = '../../data/other_properties/train_test_split'
 DATA_PATH = '../../data/other_properties'
-DATA_NAME_PREFIX = 'ICMC_oxides_'
+DATASET_PREFIX = 'ICMC_oxides_'
+REMOVE_ID_COLUMN = True

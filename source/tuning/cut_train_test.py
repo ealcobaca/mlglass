@@ -1,37 +1,26 @@
+import os
 import pandas as pd
 from sklearn.model_selection import KFold
-# import numpy as np
-import os
+from constants import SPLIT_DATA_PATH as split_path
 from constants import TARGETS_FORMATTED as targets
 from constants import DATA_PATH as data_path
-from constants import DATA_NAME_PREFIX as prefix
+from constants import DATASET_PREFIX as data_prefix
+from constants import REMOVE_ID_COLUMN
 
-directory = "{}/train_test_split".format(data_path)
-if not os.path.exists(directory):
-    os.makedirs(directory)
+
+if not os.path.exists(split_path):
+    os.makedirs(split_path)
 
 outer_seed = 1
 
 for target, targetf in targets.items():
-    data = pd.read_csv("{}/{}{}.csv".format(data_path, prefix, targetf))
-    # Remove glass ID
-    data = data.iloc[:, 1:]
+    data = pd.read_csv(
+        '{0}/{1}{2}.csv'.format(data_path, data_prefix, targetf)
+    )
 
-    # # data = pd.read_csv("../../data/clean/data_tg_dupl_rem.csv")
-    # order = np.argsort(data.iloc[:, -1].values).tolist()
-    # idx_extremes = order[:6]
-    # idx_extremes.extend(order[-6:])
-    #
-    # data_extremes = data.iloc[idx_extremes, :]
-    #
-    # idx_not_extremes = [i for i in range(len(data)) if i not in idx_extremes]
-    # data = data.iloc[idx_not_extremes, :]
-    #
-    # data_extremes.to_csv(
-    #     "../../data/clean/train_test_split_named/tg_test_extreme.csv",
-    #     index=False
-    # )
-    # data.reset_index(drop=True, inplace=True)
+    # Remove material id
+    if REMOVE_ID_COLUMN:
+        data = data.iloc[:, 1:]
 
     columns = data.columns
     X, y = data.iloc[:, :-1].values, data.iloc[:, -1].values
@@ -44,25 +33,21 @@ for target, targetf in targets.items():
         count += 1
         values = []
 
-        path_name = "{0}/{1}_{2}_fold{3:02d}.csv".format(
-            directory, target, 'train', count
+        path_name = '{0}/{1}_train_fold{2:02d}.csv'.format(
+            split_path, target, count
         )
         df_train = pd.DataFrame(X_train)
-        df_train[targetf] = y_train
+        df_train[target] = y_train
         df_train.columns = columns
         df_train.to_csv(path_name, index=False)
 
         # idx_max = np.argmax(y_test)
         # idx_min = np.argmin(y_test)
 
-        path_name = "{0}/{1}_{2}_fold{3:02d}.csv".format(
-            directory, target, 'test', count
+        path_name = '{0}/{1}_test_fold{2:02d}.csv'.format(
+            split_path, target, count
         )
         df_test = pd.DataFrame(X_test)
-        df_test[targetf] = y_test
+        df_test[target] = y_test
         df_test.columns = columns
         df_test.to_csv(path_name, index=False)
-
-        # values.append(np.append(X_test[idx_max], y_test[idx_max]))
-        # values.append(np.append(X_test[idx_min], y_test[idx_min]))
-        # df_test_extreme = pd.DataFrame(values, columns=columns)
