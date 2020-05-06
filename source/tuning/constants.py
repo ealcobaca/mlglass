@@ -32,18 +32,14 @@ REGRESSORS_FORMATTED = {
 }
 
 
-# Targets section
-# TARGETS_LIST = ['tg', 'nd300', 'tl']
-# TARGETS_LIST = ['tg']
-# TARGETS_LIST = ['abbe', 'nd300', 'tliquidus', 'tec', 'young']
-TARGETS_LIST = ['tec']
+# Targets
+TARGETS_LIST = ['ANY_TEC', 'MOD_UNG', 'ND300', 'TG', 'TLiq']
 TARGETS_FORMATTED = {
-    # 'tg': '$T_g$',
-    # 'abbe': 'Abbe',
-    # 'nd300': 'ND300',
-    # 'tliquidus': 'Tliquidus',
-    'tec': 'TEC',
-    # 'young': 'Young',
+    'ANY_TEC': 'TEC',
+    'MOD_UNG': 'Young',
+    'ND300': 'ND300',
+    'TG': 'T$_g$',
+    'TLiq': 'TLiq'
 }
 
 METRICS_FORMATTED = {
@@ -55,8 +51,8 @@ METRICS_FORMATTED = {
 
 
 # Paths sections
-OUTPUT_PATH = '../../all_properties_results'
+OUTPUT_PATH = '../../six_properties_results'
 SPLIT_DATA_PATH = '../../data/other_properties/train_test_split'
 DATA_PATH = '../../data/other_properties'
-DATASET_PREFIX = 'ICMC_oxides_'
+DATASET_PREFIX = 'out_pipeline_six_'
 REMOVE_ID_COLUMN = True

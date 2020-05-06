@@ -8,7 +8,7 @@ outer_fold := 1
 inner_seed := 0
 outer_seed := 1
 tuning_seed := 2
-must_normalize := True
+must_normalize := False
 
 run_clean_data:
 	@printf "<<< Running .... >>>\n\n"

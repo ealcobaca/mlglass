@@ -52,7 +52,7 @@ def get_regressor(algorithm):
         return DecisionTreeRegressor
     elif algorithm == 'mlp':
         return MLPRegressor
-    elif algorithm =='knn':
+    elif algorithm == 'knn':
         return KNeighborsRegressor
     elif algorithm == 'svr':
         return SVR
@@ -103,7 +103,7 @@ def dt_space():
 
 def rf_space():
     hp_rf = HPSpace(name='RF')
-    hp_rf.add_axis(hp_rf, 'n_estimators', 'z', 500, 1000, np.random.ranf)
+    hp_rf.add_axis(hp_rf, 'n_estimators', 'z', 100, 1000, np.random.ranf)
     # Tamanho maximo como o numero de features do problema
     hp_rf.add_axis(hp_rf, 'max_features', 'c', None, None,
                    ['auto', 'sqrt', 'log2'])
