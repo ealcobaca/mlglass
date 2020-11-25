@@ -70,7 +70,7 @@ def train_best_models(train_data, regressors, output_path, target, fold,
 
 
 def main(parameters):
-    must_normalize = bool(parameters[1])
+    must_normalize = parameters[1] == 'True'
     for target in targets:
         print('Training models for {}'.format(target))
         for k in range(1, n_folds + 1):

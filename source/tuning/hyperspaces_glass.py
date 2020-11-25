@@ -139,7 +139,7 @@ def mlp_space():
 
 def knn_space():
     hp_knn = HPSpace(name='k-NN')
-    hp_knn.add_axis(hp_knn, 'n_neighbors', 'z', 1, 1000, np.random.ranf)
+    hp_knn.add_axis(hp_knn, 'n_neighbors', 'z', 1, 100, np.random.ranf)
     hp_knn.add_axis(hp_knn, 'weights', 'c', None, None,
                     ['uniform', 'distance'])
     hp_knn.print(data=True)
@@ -244,7 +244,7 @@ def main(parameters):
     outer_seed = int(parameters[8])
     tuning_seed = int(parameters[9])
     outer_fold = int(parameters[10])
-    must_normalize = bool(parameters[11])
+    must_normalize = parameters[11] == 'True'
 
     output_folder = os.path.join(output_folder, regressor, data_tag,
                                  "outer_fold"+str(outer_fold))

@@ -35,7 +35,7 @@ if __name__ == '__main__':
             # with tempfile.TemporaryDirectory() as td:
             #     with zipfile.ZipFile(data_path, 'r') as zf:
             #         zf.extractall(path=td)
-            td = '../../all_properties_results/{}'.format(regressor)
+            td = '{}/{}'.format(output_path, regressor)
             for k in range(1, n_folds + 1):
                 dir_prefix = '{0}/outer_fold{1}'.format(
                     target, k

@@ -182,7 +182,7 @@ metrics = OrderedDict(
 
 
 if __name__ == '__main__':
-    must_normalize = bool(sys.argv[1])
+    must_normalize = sys.argv[1] == 'True'
     print()
     print('Testing trained models')
     print()

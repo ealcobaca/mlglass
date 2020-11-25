@@ -27,8 +27,8 @@ for target in targets:
     for alg, idx in zip(idxmin.index, idxmin.values):
         # Comentar esse if se quiser saber a configuração para todos
         # os algoritmos
-        if alg != "rf":
-            continue
+        #if alg != "rf":
+        #    continue
         print(
             "Median configuration for {0} was at fold {1:02d}".format(
                 alg, idx + 1

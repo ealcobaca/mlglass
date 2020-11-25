@@ -33,11 +33,13 @@ REGRESSORS_FORMATTED = {
 
 
 # Targets
-TARGETS_LIST = ['ANY_TEC', 'MOD_UNG', 'ND300', 'TG', 'TLiq']
+TARGETS_LIST = ['ANY_TEC', 'MOD_UNG', 'ND300', 'NUD300', 'TG', 'TLiq']
+# TARGETS_LIST = ['MOD_UNG']
 TARGETS_FORMATTED = {
     'ANY_TEC': 'TEC',
-    'MOD_UNG': 'Young',
+    #'MOD_UNG': 'Young',
     'ND300': 'ND300',
+    'NUD300': 'NUD300',
     'TG': 'T$_g$',
     'TLiq': 'TLiq'
 }
@@ -51,8 +53,8 @@ METRICS_FORMATTED = {
 
 
 # Paths sections
-OUTPUT_PATH = '../../six_properties_results'
-SPLIT_DATA_PATH = '../../data/other_properties/train_test_split'
-DATA_PATH = '../../data/other_properties'
+OUTPUT_PATH = '/home/mastelini/glass_ml/six_properties_results'
+SPLIT_DATA_PATH = '/home/mastelini/glass_ml/six_properties_results/train_test_split'
+DATA_PATH = '/home/mastelini/glass_ml/glass_project/playground/run_pipeline/out_data'
 DATASET_PREFIX = 'out_pipeline_six_'
 REMOVE_ID_COLUMN = True

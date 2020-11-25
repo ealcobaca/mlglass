@@ -15,7 +15,7 @@ outer_seed = 1
 
 for target, targetf in targets.items():
     data = pd.read_csv(
-        '{0}/{1}{2}.csv'.format(data_path, data_prefix, targetf)
+        '{0}/{1}{2}.csv'.format(data_path, data_prefix, target)
     )
 
     # Remove material id
